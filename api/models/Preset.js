@@ -15,9 +15,18 @@ module.exports = {
   getPreset,
   getPresets: async (user, filter) => {
     try {
-      const presets = await Preset.find({ ...filter, user }).lean();
+      const query = { ...filter, user };
+
+      console.log("query", query)
+
+      const presets = await Preset.find(query);
       const defaultValue = 10000;
 
+      if (!presets || !presets.length) {
+        return Promise.resolve([]);
+      }
+
+      console.log("presets", presets)
       presets.sort((a, b) => {
         let orderA = a.order !== undefined ? a.order : defaultValue;
         let orderB = b.order !== undefined ? b.order : defaultValue;

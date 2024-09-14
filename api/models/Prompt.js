@@ -132,7 +132,8 @@ const getAllPromptGroups = async (req, filter) => {
     }
 
     const promptGroupsPipeline = createAllGroupsPipeline(combinedQuery);
-    return await PromptGroup.aggregate(promptGroupsPipeline).exec();
+    console.log("promptGroupsPipeline", promptGroupsPipeline);
+    return await PromptGroup.aggregate(promptGroupsPipeline);
   } catch (error) {
     console.error('Error getting all prompt groups', error);
     return { message: 'Error getting all prompt groups' };
@@ -192,8 +193,8 @@ const getPromptGroups = async (req, filter) => {
     const totalPromptGroupsPipeline = [{ $match: combinedQuery }, { $count: 'total' }];
 
     const [promptGroupsResults, totalPromptGroupsResults] = await Promise.all([
-      PromptGroup.aggregate(promptGroupsPipeline).exec(),
-      PromptGroup.aggregate(totalPromptGroupsPipeline).exec(),
+      PromptGroup.aggregate(promptGroupsPipeline),
+      PromptGroup.aggregate(totalPromptGroupsPipeline),
     ]);
 
     const promptGroups = promptGroupsResults;

@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { conversationPreset } = require('./defaults');
-const presetSchema = mongoose.Schema(
+const presetSchema = new dynamoose.Schema(
   {
     presetId: {
       type: String,
@@ -16,6 +16,7 @@ const presetSchema = mongoose.Schema(
     user: {
       type: String,
       default: null,
+      index: true
     },
     defaultPreset: {
       type: Boolean,
@@ -24,16 +25,25 @@ const presetSchema = mongoose.Schema(
       type: Number,
     },
     // google only
-    examples: [{ type: mongoose.Schema.Types.Mixed }],
+    examples: [{ type: dynamoose.type.ANY }],
     ...conversationPreset,
     agentOptions: {
-      type: mongoose.Schema.Types.Mixed,
+      type: dynamoose.type.ANY,
       default: null,
     },
   },
   { timestamps: true },
 );
 
-const Preset = mongoose.models.Preset || mongoose.model('Preset', presetSchema);
+const Preset = dynamoose.model('Preset', presetSchema);
+
+Preset.find = async function (query) {
+  try {
+   const preset = await Preset.query(query).exec();
+   return preset[0] || null;
+  } catch (error) {
+   throw new Error(`Failed to find preset: ${error.message}`);
+  }
+};
 
 module.exports = Preset;

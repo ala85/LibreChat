@@ -1,10 +1,9 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 
-const transactionSchema = mongoose.Schema(
+const transactionSchema = new dynamoose.Schema(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
       index: true,
       required: true,
     },

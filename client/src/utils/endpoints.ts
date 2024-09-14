@@ -71,6 +71,9 @@ export function getEndpointField<K extends keyof TConfig>(
   }
 
   const config = endpointsConfig[endpoint];
+  console.log("################### Getting Config, endpointsConfig", endpointsConfig)
+  console.log("################### Getting Config, endpoint", endpoint)
+  console.log("################### Getting Config:", config)
   if (!config) {
     return undefined;
   }

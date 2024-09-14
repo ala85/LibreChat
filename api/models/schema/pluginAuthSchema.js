@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 
-const pluginAuthSchema = mongoose.Schema(
+const pluginAuthSchema = new dynamoose.Schema(
   {
     authField: {
       type: String,
@@ -21,6 +21,6 @@ const pluginAuthSchema = mongoose.Schema(
   { timestamps: true },
 );
 
-const PluginAuth = mongoose.models.Plugin || mongoose.model('PluginAuth', pluginAuthSchema);
+const PluginAuth = dynamoose.model('PluginAuth', pluginAuthSchema);
 
 module.exports = PluginAuth;

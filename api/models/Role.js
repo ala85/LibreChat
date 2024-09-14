@@ -13,6 +13,16 @@ const getLogStores = require('~/cache/getLogStores');
 const Role = require('~/models/schema/roleSchema');
 const { logger } = require('~/config');
 
+const findOne = async function (query) {
+  try {
+    const role = await Role.scan(query).exec();
+    return role[0] || null;
+  } catch (error) {
+    throw new Error(`Failed to find role: ${error.message}`);
+  }
+};
+
+
 /**
  * Retrieve a role by name and convert the found role document to a plain object.
  * If the role with the given name doesn't exist and the name is a system defined role, create it and return the lean version.
@@ -28,11 +38,11 @@ const getRoleByName = async function (roleName, fieldsToSelect = null) {
     if (cachedRole) {
       return cachedRole;
     }
-    let query = Role.findOne({ name: roleName });
+    let query = findOne({ name: roleName });
     if (fieldsToSelect) {
       query = query.select(fieldsToSelect);
     }
-    let role = await query.lean().exec();
+    let role = await query;
 
     if (!role && SystemRoles[roleName]) {
       role = roleDefaults[roleName];
@@ -55,22 +65,32 @@ const getRoleByName = async function (roleName, fieldsToSelect = null) {
  * @returns {Promise<TRole>} Updated role document.
  */
 const updateRoleByName = async function (roleName, updates) {
+  console.log("updateRoleByName")
   try {
     const cache = getLogStores(CacheKeys.ROLES);
-    const role = await Role.findOneAndUpdate(
-      { name: roleName },
-      { $set: updates },
-      { new: true, lean: true },
-    )
-      .select('-__v')
-      .lean()
-      .exec();
-    await cache.set(roleName, role);
+
+    // Find the role by name
+    let role = await findOne ({name: roleName});
+
+    if (role) {
+      // Update the role with the new values
+      Object.assign(role, updates);
+
+      // Save the updated role
+      await role.save();
+
+      // Update the cache
+      await cache.set(roleName, role);
+    } else {
+      throw new Error(`Role with name '${roleName}' not found.`);
+    }
+
     return role;
   } catch (error) {
     throw new Error(`Failed to update role: ${error.message}`);
   }
 };
+
 
 const permissionSchemas = {
   [PermissionTypes.AGENTS]: agentPermissionsSchema,
@@ -85,6 +105,9 @@ const permissionSchemas = {
  * @param {Object.<PermissionTypes, Object.<Permissions, boolean>>} permissionsUpdate - Permissions to update and their values.
  */
 async function updateAccessPermissions(roleName, permissionsUpdate) {
+  console.log("updateAccessPermissions");
+
+  // Prepare the updates
   const updates = {};
   for (const [permissionType, permissions] of Object.entries(permissionsUpdate)) {
     if (permissionSchemas[permissionType]) {
@@ -93,15 +116,18 @@ async function updateAccessPermissions(roleName, permissionsUpdate) {
   }
 
   if (Object.keys(updates).length === 0) {
-    return;
+    return; // No updates to process
   }
 
   try {
-    const role = await getRoleByName(roleName);
+    // Fetch the role by name
+    const role = await findOne({name: roleName});
     if (!role) {
+      console.log(`Role '${roleName}' not found.`);
       return;
     }
 
+    // Update the role's permissions
     const updatedPermissions = {};
     let hasChanges = false;
 
@@ -114,14 +140,15 @@ async function updateAccessPermissions(roleName, permissionsUpdate) {
           updatedPermissions[permissionType][permission] = value;
           hasChanges = true;
           logger.info(
-            `Updating '${roleName}' role ${permissionType} '${permission}' permission from ${currentPermissions[permission]} to: ${value}`,
+            `Updating '${roleName}' role ${permissionType} '${permission}' permission from ${currentPermissions[permission]} to: ${value}`
           );
         }
       }
     }
-
+    // Save updated role if there are changes
     if (hasChanges) {
-      await updateRoleByName(roleName, updatedPermissions);
+      Object.assign(role, updatedPermissions); // Apply updates to the role
+      await Role.update(role); // Save updated role to DynamoDB
       logger.info(`Updated '${roleName}' role permissions`);
     } else {
       logger.info(`No changes needed for '${roleName}' role permissions`);
@@ -129,7 +156,8 @@ async function updateAccessPermissions(roleName, permissionsUpdate) {
   } catch (error) {
     logger.error(`Failed to update ${roleName} role permissions:`, error);
   }
-}
+};
+
 
 /**
  * Initialize default roles in the system.
@@ -142,8 +170,8 @@ const initializeRoles = async function () {
   const defaultRoles = [SystemRoles.ADMIN, SystemRoles.USER];
 
   for (const roleName of defaultRoles) {
-    let role = await Role.findOne({ name: roleName });
-
+    let role = await findOne({ name: roleName });
+    console.log("role:", role)
     if (!role) {
       // Create new role if it doesn't exist
       role = new Role(roleDefaults[roleName]);
@@ -163,6 +191,8 @@ const initializeRoles = async function () {
     await role.save();
   }
 };
+
+
 module.exports = {
   getRoleByName,
   initializeRoles,

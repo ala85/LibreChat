@@ -9,12 +9,14 @@ const logger = require('~/config/winston');
  */
 const getConversationTags = async (user) => {
   try {
-    return await ConversationTag.find({ user }).sort({ position: 1 }).lean();
+    const result = await ConversationTag.query({ user }).sort('position').exec();
+    return result;
   } catch (error) {
     logger.error('[getConversationTags] Error getting conversation tags', error);
     throw new Error('Error getting conversation tags');
   }
 };
+
 
 /**
  * Creates a new conversation tag.

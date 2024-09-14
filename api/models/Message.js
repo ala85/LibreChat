@@ -53,13 +53,14 @@ async function saveMessage(req, params, metadata) {
       user: req.user.id,
       messageId: params.newMessageId || params.messageId,
     };
+
     const message = await Message.findOneAndUpdate(
       { messageId: params.messageId, user: req.user.id },
       update,
       { upsert: true, new: true },
     );
 
-    return message.toObject();
+    return message;
   } catch (err) {
     logger.error('Error saving message:', err);
     logger.info(`---\`saveMessage\` context: ${metadata?.context}`);
@@ -128,10 +129,11 @@ async function recordMessage({
       ...rest,
     };
 
-    return await Message.findOneAndUpdate({ user, messageId }, message, {
+    const obj = await Message.findOneAndUpdate({ user, messageId }, message, {
       upsert: true,
       new: true,
     });
+    return obj;
   } catch (err) {
     logger.error('Error recording message:', err);
     throw err;
@@ -188,7 +190,6 @@ async function updateMessage(req, message, metadata) {
         new: true,
       },
     );
-
     if (!updatedMessage) {
       throw new Error('Message not found or user not authorized.');
     }
@@ -250,18 +251,35 @@ async function deleteMessagesSince(req, { messageId, conversationId }) {
  * @returns {Promise<TMessage[]>} The messages that match the filter criteria.
  * @throws {Error} If there is an error in retrieving messages.
  */
-async function getMessages(filter, select) {
+const getMessages = async (filter, select) => {
   try {
-    if (select) {
-      return await Message.find(filter).select(select).sort({ createdAt: 1 }).lean();
+    const result = await Message.query(filter).exec();
+
+    console.log("select", select)
+    console.log("type select", typeof select)
+
+    if (!(select instanceof Array)) {
+        select = [select]
     }
 
-    return await Message.find(filter).sort({ createdAt: 1 }).lean();
+    if (select) {
+      return result.map(item => {
+        const projected = {};
+        select.forEach(field => {
+          if (item[field] !== undefined) {
+            projected[field] = item[field];
+          }
+        });
+        return projected;
+      }).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }
+
+    return result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   } catch (err) {
     logger.error('Error getting messages:', err);
     throw err;
   }
-}
+};
 
 /**
  * Deletes messages from the database.

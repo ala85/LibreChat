@@ -7,7 +7,7 @@ const { logger } = require('~/config');
  * @function
  * @async
  * @param {Object} txData - Transaction data.
- * @param {mongoose.Schema.Types.ObjectId} txData.user - The user ID.
+ * @param {dynamoose.Schema.Types.ObjectId} txData.user - The user ID.
  * @param {String} txData.conversationId - The ID of the conversation.
  * @param {String} txData.model - The model name.
  * @param {String} txData.context - The context in which the transaction is made.
@@ -71,7 +71,7 @@ const spendTokens = async (txData, tokenUsage) => {
  * @function
  * @async
  * @param {Object} txData - Transaction data.
- * @param {mongoose.Schema.Types.ObjectId} txData.user - The user ID.
+ * @param {dynamoose.Schema.Types.ObjectId} txData.user - The user ID.
  * @param {String} txData.conversationId - The ID of the conversation.
  * @param {String} txData.model - The model name.
  * @param {String} txData.context - The context in which the transaction is made.

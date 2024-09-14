@@ -5,7 +5,7 @@ module.exports = {
   coverageDirectory: 'coverage',
   setupFiles: [
     './test/jestSetup.js',
-    './test/__mocks__/KeyvMongo.js',
+    './test/__mocks__/KeyvDynamoDb.js',
     './test/__mocks__/logger.js',
     './test/__mocks__/fetchEventSource.js',
   ],

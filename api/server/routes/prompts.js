@@ -205,7 +205,7 @@ router.get('/', async (req, res) => {
  *
  * @param {Express.Request} req - The request object.
  * @param {TDeletePromptVariables} req.params - The request parameters
- * @param {import('mongoose').ObjectId} req.params.promptId - The prompt ID
+ * @param {import('dynamoose').ObjectId} req.params.promptId - The prompt ID
  * @param {Express.Response} res - The response object.
  * @return {TDeletePromptResponse} A promise that resolves when the prompt is deleted.
  */

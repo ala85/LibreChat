@@ -1,9 +1,20 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const balanceSchema = require('./schema/balance');
 const { getMultiplier } = require('./tx');
 const { logger } = require('~/config');
 
-balanceSchema.statics.check = async function ({
+const Balance = dynamoose.model('Balance', balanceSchema)
+
+Balance.findOne = async function (query) {
+  try {
+    const balance = await Balance.query(query).exec();
+    return balance[0] || null;
+  } catch (error) {
+    throw new Error(`Failed to find balance: ${error.message}`);
+  }
+};
+
+Balance.check = async function ({
   user,
   model,
   endpoint,
@@ -41,4 +52,4 @@ balanceSchema.statics.check = async function ({
   return { canSpend: balance >= tokenCost, balance, tokenCost };
 };
 
-module.exports = mongoose.model('Balance', balanceSchema);
+module.exports = Balance;

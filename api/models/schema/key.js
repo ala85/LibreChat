@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 
-const keySchema = mongoose.Schema({
+const keySchema = new dynamoose.Schema({
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
     required: true,
   },
   name: {
@@ -20,6 +19,6 @@ const keySchema = mongoose.Schema({
   },
 });
 
-keySchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+// keySchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = keySchema;

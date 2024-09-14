@@ -1,9 +1,9 @@
 const mockGet = jest.fn();
 const mockSet = jest.fn();
 
-jest.mock('@keyv/mongo', () => {
+jest.mock('@keyv/dynamoDb', () => {
   const EventEmitter = require('events');
-  class KeyvMongo extends EventEmitter {
+  class KeyvDynamoDb extends EventEmitter {
     constructor(url = 'mongodb://127.0.0.1:27017', options) {
       super();
       this.ttlSupport = false;
@@ -26,5 +26,5 @@ jest.mock('@keyv/mongo', () => {
     set = mockSet;
   }
 
-  return KeyvMongo;
+  return KeyvDynamoDb;
 });

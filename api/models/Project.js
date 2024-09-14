@@ -1,4 +1,4 @@
-const { model } = require('mongoose');
+const { model } = require('dynamoose');
 const { GLOBAL_PROJECT_NAME } = require('librechat-data-provider').Constants;
 const projectSchema = require('~/models/schema/projectSchema');
 
@@ -14,11 +14,11 @@ const Project = model('Project', projectSchema);
 const getProjectById = async function (projectId, fieldsToSelect = null) {
   const query = Project.findById(projectId);
 
-  if (fieldsToSelect) {
+  /*if (fieldsToSelect) {
     query.select(fieldsToSelect);
-  }
+  }*/
 
-  return await query.lean();
+  return query;
 };
 
 /**
@@ -30,18 +30,48 @@ const getProjectById = async function (projectId, fieldsToSelect = null) {
  * @returns {Promise<MongoProject>} A plain object representing the project document.
  */
 const getProjectByName = async function (projectName, fieldsToSelect = null) {
-  const query = { name: projectName };
-  const update = { $setOnInsert: { name: projectName } };
-  const options = {
-    new: true,
-    upsert: projectName === GLOBAL_PROJECT_NAME,
-    lean: true,
-    select: fieldsToSelect,
-  };
+  console.log(`getProjectByName with ${fieldsToSelect}`);
 
-  return await Project.findOneAndUpdate(query, update, options);
+  try {
+    // Query to find the project by name
+    console.log(`Fetching project with name: ${projectName}`)
+    const projects = await Project.query({name: projectName}).exec();
+    let project = projects[0] || null;
+    console.log("aaaaaaaaaaaaa", project)
+    if (!project) {
+      if (projectName === GLOBAL_PROJECT_NAME) {
+        // Create the project if it does not exist and the name matches GLOBAL_PROJECT_NAME
+        project = new Project({ name: projectName });
+        await project.save();
+      } else {
+        console.log(`Project with name '${projectName}' not found.`);
+        return null;
+      }
+    }
+
+
+    // Select specific fields if needed
+    if (!(fieldsToSelect instanceof Array)) {
+        fieldsToSelect = [fieldsToSelect]
+    }
+
+    if (fieldsToSelect) {
+      // In Dynamoose, we need to manually handle fields selection since DynamoDB does not support projections on scan
+      const result = {};
+      fieldsToSelect.forEach(field => {
+        if (project[field] !== undefined) {
+          result[field] = project[field];
+        }
+      });
+      return result;
+    }
+
+    return project;
+  } catch (error) {
+    console.error(`Failed to retrieve or create project: ${error.message}`);
+    throw error;
+  }
 };
-
 /**
  * Add an array of prompt group IDs to a project's promptGroupIds array, ensuring uniqueness.
  *

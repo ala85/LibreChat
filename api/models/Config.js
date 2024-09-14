@@ -1,11 +1,11 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { logger } = require('~/config');
 
 const major = [0, 0];
 const minor = [0, 0];
 const patch = [0, 5];
 
-const configSchema = mongoose.Schema(
+const configSchema = dynamoose.Schema(
   {
     tag: {
       type: String,
@@ -64,7 +64,7 @@ configSchema.statics.updateByTag = async function (tag, update) {
   return await this.findOneAndUpdate({ tag }, update, { new: true });
 };
 
-const Config = mongoose.models.Config || mongoose.model('Config', configSchema);
+const Config = dynamoose.models.Config || dynamoose.model('Config', configSchema);
 
 module.exports = {
   getConfigs: async (filter) => {

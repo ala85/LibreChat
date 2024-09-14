@@ -32,7 +32,7 @@ const startServer = async () => {
     axios.defaults.headers.common['Accept-Encoding'] = 'gzip';
   }
   await connectDb();
-  logger.info('Connected to MongoDB');
+  logger.info('Connected to DynamoDB');
   await indexSync();
 
   const app = express();

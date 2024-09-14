@@ -1,6 +1,7 @@
-const mongoose = require('mongoose');
-const mongoMeili = require('~/models/plugins/mongoMeili');
-const messageSchema = mongoose.Schema(
+const dynamoose = require('dynamoose');
+const { v4: uuidv4 } = require('uuid');
+
+const messageSchema = new dynamoose.Schema(
   {
     messageId: {
       type: String,
@@ -8,6 +9,7 @@ const messageSchema = mongoose.Schema(
       required: true,
       index: true,
       meiliIndex: true,
+      hashKey: true
     },
     conversationId: {
       type: String,
@@ -83,30 +85,42 @@ const messageSchema = mongoose.Schema(
       select: false,
       default: false,
     },
-    files: { type: [{ type: mongoose.Schema.Types.Mixed }], default: undefined },
+    //FIXME
+    files: { type: [{ type: String }], default: undefined },
     plugin: {
-      type: {
-        latest: {
-          type: String,
-          required: false,
-        },
-        inputs: {
-          type: [mongoose.Schema.Types.Mixed],
-          required: false,
-          default: undefined,
-        },
-        outputs: {
-          type: String,
-          required: false,
+        type: Object,
+        schema: {
+          type: {
+            type: Object,
+            schema: {
+              latest: {
+                type: String,
+                required: false, // Not required
+              },
+              inputs: {
+                type: Array, // Array of mixed types
+                schema: [dynamoose.type.ANY], // Use ANY for mixed types
+                required: false, // Not required
+                default: undefined, // Optional, default value
+              },
+              outputs: {
+                type: String, // String type
+                required: false, // Not required
+              },
+            },
+          },
+          default: {
+            type: String, // Assuming default is a string; adjust type if needed
+            default: undefined, // Default value
+          },
         },
       },
-      default: undefined,
-    },
-    plugins: { type: [{ type: mongoose.Schema.Types.Mixed }], default: undefined },
+    //FIXME
+    plugins: { type: [{ type: String }], default: undefined },
     content: {
-      type: [{ type: mongoose.Schema.Types.Mixed }],
-      default: undefined,
-      meiliIndex: true,
+       type: [{ type: dynamoose.type.ANY }], // Use List for arrays
+       schema: [dynamoose.type.ANY], // Mixed type equivalent
+       default: undefined,
     },
     thread_id: {
       type: String,
@@ -119,19 +133,46 @@ const messageSchema = mongoose.Schema(
   { timestamps: true },
 );
 
-if (process.env.MEILI_HOST && process.env.MEILI_MASTER_KEY) {
-  messageSchema.plugin(mongoMeili, {
-    host: process.env.MEILI_HOST,
-    apiKey: process.env.MEILI_MASTER_KEY,
-    indexName: 'messages',
-    primaryKey: 'messageId',
-  });
-}
+//messageSchema.index({ createdAt: 1 });
+//messageSchema.index({ messageId: 1, user: 1 }, { unique: true });
 
-messageSchema.index({ createdAt: 1 });
-messageSchema.index({ messageId: 1, user: 1 }, { unique: true });
+/** @type {dynamoose.Model<TMessage>} */
+const Message = dynamoose.model('Message', messageSchema);
 
-/** @type {mongoose.Model<TMessage>} */
-const Message = mongoose.models.Message || mongoose.model('Message', messageSchema);
+Message.find = async function (query) {
+  try {
+    const message = await Message.query(query).exec();
+    return message[0] || null;
+  } catch (error) {
+    throw new Error(`Failed to find message: ${error.message}`);
+  }
+};
+
+Message.findOneAndUpdate = async function (searchCriteria, updateData, options = {}) {
+  const { upsert = false, new: returnNew = false } = options;
+
+  console.log("findOneAndUpdate.searchCriteria", searchCriteria)
+  console.log("findOneAndUpdate.updateData", updateData)
+  console.log("findOneAndUpdate.options", options)
+  try {
+    let result = await Message.query(searchCriteria).exec();
+
+    if (result.length === 0) {
+      if (upsert) {
+        result = await new Message(updateData).save();
+      } else {
+        return null;
+      }
+    } else {
+      result = result[0];
+      Object.assign(result, updateData);
+      result = await result.save();
+    }
+
+    return returnNew ? result : result;
+  } catch (error) {
+    throw new Error(`Failed to find or update message: ${error.message}`);
+  }
+};
 
 module.exports = Message;

@@ -2,12 +2,12 @@ const Keyv = require('keyv');
 const uap = require('ua-parser-js');
 const { ViolationTypes } = require('librechat-data-provider');
 const { isEnabled, removePorts } = require('~/server/utils');
-const keyvMongo = require('~/cache/keyvMongo');
+const keyvDynamoDb = require('~/cache/keyvDynamoDb');
 const denyRequest = require('./denyRequest');
 const { getLogStores } = require('~/cache');
 const { findUser } = require('~/models');
 
-const banCache = new Keyv({ store: keyvMongo, namespace: ViolationTypes.BAN, ttl: 0 });
+const banCache = new Keyv({ store: keyvDynamoDb, namespace: ViolationTypes.BAN, ttl: 0 });
 const message = 'Your account has been temporarily banned due to violations of our service.';
 
 /**

@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const Balance = require('./Balance');
 const { spendTokens, spendStructuredTokens } = require('./spendTokens');
@@ -9,22 +9,22 @@ let mongoServer;
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
-  await mongoose.connect(mongoUri);
+  await dynamoose.connect(mongoUri);
 });
 
 afterAll(async () => {
-  await mongoose.disconnect();
+  await dynamoose.disconnect();
   await mongoServer.stop();
 });
 
 beforeEach(async () => {
-  await mongoose.connection.dropDatabase();
+  await dynamoose.connection.dropDatabase();
 });
 
 describe('Regular Token Spending Tests', () => {
   test('Balance should decrease when spending tokens with spendTokens', async () => {
     // Arrange
-    const userId = new mongoose.Types.ObjectId();
+    const userId = new dynamoose.Types.ObjectId();
     const initialBalance = 10000000; // $10.00
     await Balance.create({ user: userId, tokenCredits: initialBalance });
 
@@ -69,7 +69,7 @@ describe('Regular Token Spending Tests', () => {
 
   test('spendTokens should handle zero completion tokens', async () => {
     // Arrange
-    const userId = new mongoose.Types.ObjectId();
+    const userId = new dynamoose.Types.ObjectId();
     const initialBalance = 10000000; // $10.00
     await Balance.create({ user: userId, tokenCredits: initialBalance });
 
@@ -104,7 +104,7 @@ describe('Regular Token Spending Tests', () => {
   });
 
   test('spendTokens should handle undefined token counts', async () => {
-    const userId = new mongoose.Types.ObjectId();
+    const userId = new dynamoose.Types.ObjectId();
     const initialBalance = 10000000; // $10.00
     await Balance.create({ user: userId, tokenCredits: initialBalance });
 
@@ -125,7 +125,7 @@ describe('Regular Token Spending Tests', () => {
   });
 
   test('spendTokens should handle only prompt tokens', async () => {
-    const userId = new mongoose.Types.ObjectId();
+    const userId = new dynamoose.Types.ObjectId();
     const initialBalance = 10000000; // $10.00
     await Balance.create({ user: userId, tokenCredits: initialBalance });
 
@@ -153,7 +153,7 @@ describe('Regular Token Spending Tests', () => {
 describe('Structured Token Spending Tests', () => {
   test('Balance should decrease and rawAmount should be set when spending a large number of structured tokens', async () => {
     // Arrange
-    const userId = new mongoose.Types.ObjectId();
+    const userId = new dynamoose.Types.ObjectId();
     const initialBalance = 17613154.55; // $17.61
     await Balance.create({ user: userId, tokenCredits: initialBalance });
 
@@ -236,7 +236,7 @@ describe('Structured Token Spending Tests', () => {
   });
 
   test('should handle zero completion tokens in structured spending', async () => {
-    const userId = new mongoose.Types.ObjectId();
+    const userId = new dynamoose.Types.ObjectId();
     const initialBalance = 17613154.55;
     await Balance.create({ user: userId, tokenCredits: initialBalance });
 
@@ -266,7 +266,7 @@ describe('Structured Token Spending Tests', () => {
   });
 
   test('should handle only prompt tokens in structured spending', async () => {
-    const userId = new mongoose.Types.ObjectId();
+    const userId = new dynamoose.Types.ObjectId();
     const initialBalance = 17613154.55;
     await Balance.create({ user: userId, tokenCredits: initialBalance });
 
@@ -295,7 +295,7 @@ describe('Structured Token Spending Tests', () => {
   });
 
   test('should handle undefined token counts in structured spending', async () => {
-    const userId = new mongoose.Types.ObjectId();
+    const userId = new dynamoose.Types.ObjectId();
     const initialBalance = 17613154.55;
     await Balance.create({ user: userId, tokenCredits: initialBalance });
 
@@ -319,7 +319,7 @@ describe('Structured Token Spending Tests', () => {
   });
 
   test('should handle incomplete context for completion tokens', async () => {
-    const userId = new mongoose.Types.ObjectId();
+    const userId = new dynamoose.Types.ObjectId();
     const initialBalance = 17613154.55;
     await Balance.create({ user: userId, tokenCredits: initialBalance });
 

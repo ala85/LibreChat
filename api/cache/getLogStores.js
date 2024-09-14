@@ -3,7 +3,7 @@ const { CacheKeys, ViolationTypes, Time } = require('librechat-data-provider');
 const { logFile, violationFile } = require('./keyvFiles');
 const { math, isEnabled } = require('~/server/utils');
 const keyvRedis = require('./keyvRedis');
-const keyvMongo = require('./keyvMongo');
+const keyvDynamoDb = require('./keyvDynamoDb');
 
 const { BAN_DURATION, USE_REDIS } = process.env ?? {};
 
@@ -55,9 +55,9 @@ const namespaces = {
   [CacheKeys.ROLES]: roles,
   [CacheKeys.CONFIG_STORE]: config,
   pending_req,
-  [ViolationTypes.BAN]: new Keyv({ store: keyvMongo, namespace: CacheKeys.BANS, ttl: duration }),
+  [ViolationTypes.BAN]: new Keyv({ store: keyvDynamoDb, namespace: CacheKeys.BANS, ttl: duration }),
   [CacheKeys.ENCODED_DOMAINS]: new Keyv({
-    store: keyvMongo,
+    store: keyvDynamoDb,
     namespace: CacheKeys.ENCODED_DOMAINS,
     ttl: 0,
   }),

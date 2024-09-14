@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const signPayload = require('~/server/services/signPayload');
 const { hashToken } = require('~/server/utils/crypto');
 const { logger } = require('~/config');
@@ -6,7 +6,7 @@ const { logger } = require('~/config');
 const { REFRESH_TOKEN_EXPIRY } = process.env ?? {};
 const expires = eval(REFRESH_TOKEN_EXPIRY) ?? 1000 * 60 * 60 * 24 * 7;
 
-const sessionSchema = mongoose.Schema({
+const sessionSchema = new dynamoose.Schema({
   refreshTokenHash: {
     type: String,
     required: true,
@@ -17,13 +17,23 @@ const sessionSchema = mongoose.Schema({
     expires: 0,
   },
   user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
     required: true,
   },
 });
 
-sessionSchema.methods.generateRefreshToken = async function () {
+const Session = dynamoose.model('Session', sessionSchema);
+
+Session.findOne = async function (query) {
+    try {
+        const result = await Session.query(query).exec();
+        return result.length > 0 ? result[0] : null; // Return the first matching session or null
+      } catch (error) {
+        throw new Error(`Failed to find session: ${error.message}`);
+      }
+}
+
+Session.prototype.generateRefreshToken = async function () {
   try {
     let expiresIn;
     if (this.expiration) {
@@ -53,7 +63,7 @@ sessionSchema.methods.generateRefreshToken = async function () {
   }
 };
 
-sessionSchema.statics.deleteAllUserSessions = async function (userId) {
+Session.prototype.deleteAllUserSessions = async function (userId) {
   try {
     if (!userId) {
       return;
@@ -69,7 +79,5 @@ sessionSchema.statics.deleteAllUserSessions = async function (userId) {
     throw error;
   }
 };
-
-const Session = mongoose.model('Session', sessionSchema);
 
 module.exports = Session;

@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 
-const { Schema } = mongoose;
+const { Schema } = dynamoose;
 
 const AuthSchema = new Schema(
   {
@@ -24,8 +24,7 @@ const AuthSchema = new Schema(
 
 const actionSchema = new Schema({
   user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
     index: true,
     required: true,
   },
@@ -38,9 +37,10 @@ const actionSchema = new Schema({
     type: String,
     default: 'action_prototype',
   },
-  settings: Schema.Types.Mixed,
+  settings: dynamoose.type.ANY,
   agent_id: String,
   assistant_id: String,
+  /*
   metadata: {
     api_key: String, // private, encrypted
     auth: AuthSchema,
@@ -54,6 +54,30 @@ const actionSchema = new Schema({
     oauth_client_id: String, // private, encrypted
     oauth_client_secret: String, // private, encrypted
   },
+  */
+  api_key: {
+      type: String,  // private, encrypted
+    },
+    auth: {
+      type: Object,  // Use Object for nested schemas
+      schema: AuthSchema,
+    },
+    domain: {
+      type: String,
+      required: true,
+    },
+    privacy_policy_url: {
+      type: String,
+    },
+    raw_spec: {
+      type: String,
+    },
+    oauth_client_id: {
+      type: String,  // private, encrypted
+    },
+    oauth_client_secret: {
+      type: String,  // private, encrypted
+    }
 });
 // }, { minimize: false }); // Prevent removal of empty objects
 

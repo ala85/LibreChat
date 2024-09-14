@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 
-const conversationTagSchema = mongoose.Schema(
+const conversationTagSchema = new dynamoose.Schema(
   {
     tag: {
       type: String,
@@ -26,6 +26,17 @@ const conversationTagSchema = mongoose.Schema(
   { timestamps: true },
 );
 
-conversationTagSchema.index({ tag: 1, user: 1 }, { unique: true });
+//conversationTagSchema.index({ tag: 1, user: 1 }, { unique: true });
 
-module.exports = mongoose.model('ConversationTag', conversationTagSchema);
+const ConversationTag = dynamoose.model('ConversationTag', conversationTagSchema);
+
+ConversationTag.find = async function (query) {
+  try {
+    const count = await ConversationTag.query(query).count().exec();
+    return count;
+  } catch (error) {
+    throw new Error(`Failed to count conversation tags: ${error.message}`);
+  }
+};
+
+module.exports = ConversationTag;

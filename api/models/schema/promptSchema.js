@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { Constants } = require('librechat-data-provider');
-const Schema = mongoose.Schema;
+const Schema = dynamoose.Schema;
 
 /**
  * @typedef {Object} MongoPromptGroup
@@ -39,19 +39,16 @@ const promptGroupSchema = new Schema(
       index: true,
     },
     projectIds: {
-      type: [Schema.Types.ObjectId],
-      ref: 'Project',
+      type: [String],
       index: true,
     },
     productionId: {
-      type: Schema.Types.ObjectId,
-      ref: 'Prompt',
+      type: String,
       required: true,
       index: true,
     },
     author: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
       required: true,
       index: true,
     },
@@ -80,19 +77,80 @@ const promptGroupSchema = new Schema(
   },
 );
 
-const PromptGroup = mongoose.model('PromptGroup', promptGroupSchema);
+const PromptGroup = dynamoose.model('PromptGroup', promptGroupSchema);
+
+PromptGroup.aggregate = async (pipeline) => {
+  try {
+    let results = await Prompt.scan().exec(); // Retrieve all items
+
+    // Apply the pipeline stages
+    for (const stage of pipeline) {
+      if (stage.$match) {
+        // Match stage
+        results = results.filter(item => {
+          return Object.keys(stage.$match).every(key => item[key] === stage.$match[key]);
+        });
+      }
+
+      if (stage.$sort) {
+        // Sort stage
+        const [field, order] = Object.entries(stage.$sort)[0];
+        results.sort((a, b) => (a[field] > b[field] ? order : -order));
+      }
+
+      if (stage.$lookup) {
+        // Lookup stage
+        const { from, localField, foreignField, as } = stage.$lookup;
+        const lookupTable = await dynamoose.model(from).scan().exec(); // Retrieve all items from the lookup table
+
+        results = results.map(item => {
+          const foreignItems = lookupTable.filter(lookupItem => lookupItem[foreignField] === item[localField]);
+          return { ...item, [as]: foreignItems };
+        });
+      }
+
+      if (stage.$unwind) {
+        // Unwind stage
+        const { path, preserveNullAndEmptyArrays } = stage.$unwind;
+        results = results.flatMap(item => {
+          const array = item[path];
+          if (!array || (array.length === 0 && !preserveNullAndEmptyArrays)) {
+            return [];
+          }
+          return array.map(subItem => ({ ...item, [path]: subItem }));
+        });
+      }
+
+      if (stage.$project) {
+        // Project stage
+        results = results.map(item => {
+          const projected = {};
+          for (const field of Object.keys(stage.$project)) {
+            if (stage.$project[field] === 1) {
+              projected[field] = item[field];
+            }
+          }
+          return projected;
+        });
+      }
+    }
+
+    return results;
+  } catch (error) {
+    throw new Error(`Failed to process pipeline: ${error.message}`);
+  }
+};
+
 
 const promptSchema = new Schema(
   {
     groupId: {
-      type: Schema.Types.ObjectId,
-      ref: 'PromptGroup',
+      type: String,
       required: true,
       index: true,
     },
     author: {
-      type: Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
       required: true,
     },
     prompt: {
@@ -110,9 +168,72 @@ const promptSchema = new Schema(
   },
 );
 
-const Prompt = mongoose.model('Prompt', promptSchema);
+const Prompt = dynamoose.model('Prompt', promptSchema);
 
-promptSchema.index({ createdAt: 1, updatedAt: 1 });
-promptGroupSchema.index({ createdAt: 1, updatedAt: 1 });
+//promptSchema.index({ createdAt: 1, updatedAt: 1 });
+//promptGroupSchema.index({ createdAt: 1, updatedAt: 1 });
+
+Prompt.aggregate = async (pipeline) => {
+  try {
+    let results = await PromptGroup.scan().exec(); // Retrieve all items
+
+    // Apply the pipeline stages
+    for (const stage of pipeline) {
+      if (stage.$match) {
+        // Match stage
+        results = results.filter(item => {
+          return Object.keys(stage.$match).every(key => item[key] === stage.$match[key]);
+        });
+      }
+
+      if (stage.$sort) {
+        // Sort stage
+        const [field, order] = Object.entries(stage.$sort)[0];
+        results.sort((a, b) => (a[field] > b[field] ? order : -order));
+      }
+
+      if (stage.$lookup) {
+        // Lookup stage
+        const { from, localField, foreignField, as } = stage.$lookup;
+        const lookupTable = await dynamoose.model(from).scan().exec(); // Retrieve all items from the lookup table
+
+        results = results.map(item => {
+          const foreignItems = lookupTable.filter(lookupItem => lookupItem[foreignField] === item[localField]);
+          return { ...item, [as]: foreignItems };
+        });
+      }
+
+      if (stage.$unwind) {
+        // Unwind stage
+        const { path, preserveNullAndEmptyArrays } = stage.$unwind;
+        results = results.flatMap(item => {
+          const array = item[path];
+          if (!array || (array.length === 0 && !preserveNullAndEmptyArrays)) {
+            return [];
+          }
+          return array.map(subItem => ({ ...item, [path]: subItem }));
+        });
+      }
+
+      if (stage.$project) {
+        // Project stage
+        results = results.map(item => {
+          const projected = {};
+          for (const field of Object.keys(stage.$project)) {
+            if (stage.$project[field] === 1) {
+              projected[field] = item[field];
+            }
+          }
+          return projected;
+        });
+      }
+    }
+
+    return results;
+  } catch (error) {
+    throw new Error(`Failed to process pipeline: ${error.message}`);
+  }
+};
+
 
 module.exports = { Prompt, PromptGroup };

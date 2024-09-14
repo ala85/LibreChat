@@ -1,5 +1,5 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const dynamoose = require('dynamoose');
+const Schema = dynamoose.Schema;
 
 const categoriesSchema = new Schema({
   label: {
@@ -14,6 +14,6 @@ const categoriesSchema = new Schema({
   },
 });
 
-const categories = mongoose.model('categories', categoriesSchema);
+const categories = dynamoose.model('categories', categoriesSchema);
 
 module.exports = { Categories: categories };

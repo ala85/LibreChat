@@ -1,21 +1,21 @@
 const tokenSchema = require('./schema/tokenSchema');
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { logger } = require('~/config');
 
 /**
  * Token model.
- * @type {mongoose.Model}
+ * @type {dynamoose.Model}
  */
-const Token = mongoose.model('Token', tokenSchema);
+const Token = dynamoose.model('Token', tokenSchema);
 
 /**
  * Creates a new Token instance.
  * @param {Object} tokenData - The data for the new Token.
- * @param {mongoose.Types.ObjectId} tokenData.userId - The user's ID. It is required.
+ * @param {dynamoose.Types.ObjectId} tokenData.userId - The user's ID. It is required.
  * @param {String} tokenData.email - The user's email.
  * @param {String} tokenData.token - The token. It is required.
  * @param {Number} tokenData.expiresIn - The number of seconds until the token expires.
- * @returns {Promise<mongoose.Document>} The new Token instance.
+ * @returns {Promise<dynamoose.Document>} The new Token instance.
  * @throws Will throw an error if token creation fails.
  */
 async function createToken(tokenData) {
@@ -40,7 +40,7 @@ async function createToken(tokenData) {
 /**
  * Finds a Token document that matches the provided query.
  * @param {Object} query - The query to match against.
- * @param {mongoose.Types.ObjectId|String} query.userId - The ID of the user.
+ * @param {dynamoose.Types.ObjectId|String} query.userId - The ID of the user.
  * @param {String} query.token - The token value.
  * @param {String} query.email - The email of the user.
  * @returns {Promise<Object|null>} The matched Token document, or null if not found.
@@ -74,10 +74,10 @@ async function findToken(query) {
 /**
  * Updates a Token document that matches the provided query.
  * @param {Object} query - The query to match against.
- * @param {mongoose.Types.ObjectId|String} query.userId - The ID of the user.
+ * @param {dynamoose.Types.ObjectId|String} query.userId - The ID of the user.
  * @param {String} query.token - The token value.
  * @param {Object} updateData - The data to update the Token with.
- * @returns {Promise<mongoose.Document|null>} The updated Token document, or null if not found.
+ * @returns {Promise<dynamoose.Document|null>} The updated Token document, or null if not found.
  * @throws Will throw an error if the update operation fails.
  */
 async function updateToken(query, updateData) {
@@ -92,7 +92,7 @@ async function updateToken(query, updateData) {
 /**
  * Deletes all Token documents that match the provided token, user ID, or email.
  * @param {Object} query - The query to match against.
- * @param {mongoose.Types.ObjectId|String} query.userId - The ID of the user.
+ * @param {dynamoose.Types.ObjectId|String} query.userId - The ID of the user.
  * @param {String} query.token - The token value.
  * @param {String} query.email - The email of the user.
  * @returns {Promise<Object>} The result of the delete operation.

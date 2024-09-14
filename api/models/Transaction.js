@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { isEnabled } = require('~/server/utils/handleText');
 const transactionSchema = require('./schema/transaction');
 const { getMultiplier, getCacheMultiplier } = require('./tx');
@@ -6,8 +6,10 @@ const { logger } = require('~/config');
 const Balance = require('./Balance');
 const cancelRate = 1.15;
 
+const Transaction = dynamoose.model('Transaction', transactionSchema);
+
 /** Method to calculate and set the tokenValue for a transaction */
-transactionSchema.methods.calculateTokenValue = function () {
+Transaction.prototype.calculateTokenValue = function () {
   if (!this.valueKey || !this.tokenType) {
     this.tokenValue = this.rawAmount;
   }
@@ -25,7 +27,7 @@ transactionSchema.methods.calculateTokenValue = function () {
  * Static method to create a transaction and update the balance
  * @param {txData} txData - Transaction data.
  */
-transactionSchema.statics.create = async function (txData) {
+Transaction.create = async function (txData) {
   const Transaction = this;
 
   const transaction = new Transaction(txData);
@@ -38,7 +40,7 @@ transactionSchema.statics.create = async function (txData) {
     return;
   }
 
-  let balance = await Balance.findOne({ user: transaction.user }).lean();
+  let balance = await Balance.findOne({ user: transaction.user });
   let incrementValue = transaction.tokenValue;
 
   if (balance && balance?.tokenCredits + incrementValue < 0) {
@@ -63,7 +65,7 @@ transactionSchema.statics.create = async function (txData) {
  * Static method to create a structured transaction and update the balance
  * @param {txData} txData - Transaction data.
  */
-transactionSchema.statics.createStructured = async function (txData) {
+Transaction.createStructured = async function (txData) {
   const Transaction = this;
 
   const transaction = new Transaction({
@@ -79,7 +81,7 @@ transactionSchema.statics.createStructured = async function (txData) {
     return;
   }
 
-  let balance = await Balance.findOne({ user: transaction.user }).lean();
+  let balance = await Balance.findOne({ user: transaction.user });
   let incrementValue = transaction.tokenValue;
 
   if (balance && balance?.tokenCredits + incrementValue < 0) {
@@ -101,7 +103,7 @@ transactionSchema.statics.createStructured = async function (txData) {
 };
 
 /** Method to calculate token value for structured tokens */
-transactionSchema.methods.calculateStructuredTokenValue = function () {
+Transaction.prototype.calculateStructuredTokenValue = function () {
   if (!this.tokenType) {
     this.tokenValue = this.rawAmount;
     return;
@@ -161,8 +163,6 @@ transactionSchema.methods.calculateStructuredTokenValue = function () {
     }
   }
 };
-
-const Transaction = mongoose.model('Transaction', transactionSchema);
 
 /**
  * Queries and retrieves transactions based on a given filter.

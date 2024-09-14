@@ -1,4 +1,5 @@
-const { Schema } = require('mongoose');
+const { Schema } = require('dynamoose');
+const { v4: uuidv4 } = require('uuid'); // For generating unique IDs
 
 /**
  * @typedef {Object} MongoProject
@@ -11,19 +12,24 @@ const { Schema } = require('mongoose');
 
 const projectSchema = new Schema(
   {
+     _id: {
+        type: String,
+        hashKey: true, // Primary key
+        default: uuidv4, // Automatically generate a UUID
+      },
     name: {
       type: String,
       required: true,
       index: true,
     },
     promptGroupIds: {
-      type: [Schema.Types.ObjectId],
-      ref: 'PromptGroup',
+      type: Array,
+      schema: [String],
       default: [],
     },
     agentIds: {
-      type: [String],
-      ref: 'Agent',
+      type: Array,
+      schema: [String],
       default: [],
     },
   },

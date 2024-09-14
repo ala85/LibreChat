@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { getRandomValues, hashToken } = require('~/server/utils/crypto');
 const { createToken, findToken } = require('./Token');
 const logger = require('~/config/winston');
@@ -21,7 +21,7 @@ const createInvite = async (email) => {
     const hash = await hashToken(token);
     const encodedToken = encodeURIComponent(token);
 
-    const fakeUserId = new mongoose.Types.ObjectId();
+    const fakeUserId = new dynamoose.Types.ObjectId();
 
     await createToken({
       userId: fakeUserId,

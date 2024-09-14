@@ -1,7 +1,16 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const fileSchema = require('./schema/fileSchema');
 
-const File = mongoose.model('File', fileSchema);
+const File = dynamoose.model('File', fileSchema);
+
+File.find = async function (query) {
+  try {
+    const file = await File.query(query).exec();
+    return file[0] || null;
+  } catch (error) {
+    throw new Error(`Failed to find file: ${error.message}`);
+  }
+};
 
 /**
  * Finds a file by its file_id with additional query options.
@@ -10,7 +19,7 @@ const File = mongoose.model('File', fileSchema);
  * @returns {Promise<MongoFile>} A promise that resolves to the file document or null.
  */
 const findFileById = async (file_id, options = {}) => {
-  return await File.findOne({ file_id, ...options }).lean();
+  return await File.findOne({ file_id, ...options });
 };
 
 /**
@@ -21,8 +30,25 @@ const findFileById = async (file_id, options = {}) => {
  */
 const getFiles = async (filter, _sortOptions) => {
   const sortOptions = { updatedAt: -1, ..._sortOptions };
-  return await File.find(filter).sort(sortOptions).lean();
+
+  try {
+    const result = await File.query(filter).exec(); // Use scan if filter isn't based on primary key/index
+
+    // Manually sort the result based on sortOptions
+    result.sort((a, b) => {
+      for (const [key, order] of Object.entries(sortOptions)) {
+        if (a[key] > b[key]) return order;
+        if (a[key] < b[key]) return -order;
+      }
+      return 0;
+    });
+
+    return result;
+  } catch (error) {
+    throw new Error(`Failed to get files: ${error.message}`);
+  }
 };
+
 
 /**
  * Creates a new file with a TTL of 1 hour.

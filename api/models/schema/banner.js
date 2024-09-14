@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 
-const bannerSchema = mongoose.Schema(
+const bannerSchema = new dynamoose.Schema(
   {
     bannerId: {
       type: String,
@@ -32,5 +32,5 @@ const bannerSchema = mongoose.Schema(
   { timestamps: true },
 );
 
-const Banner = mongoose.model('Banner', bannerSchema);
+const Banner = dynamoose.model('Banner', bannerSchema);
 module.exports = Banner;

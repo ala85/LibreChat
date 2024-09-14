@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 
-const agentSchema = mongoose.Schema(
+const agentSchema = new dynamoose.Schema(
   {
     id: {
       type: String,
@@ -16,6 +16,7 @@ const agentSchema = mongoose.Schema(
     instructions: {
       type: String,
     },
+    /*
     avatar: {
       type: {
         filepath: String,
@@ -23,6 +24,19 @@ const agentSchema = mongoose.Schema(
       },
       default: undefined,
     },
+    */
+    avatar: {
+        type: Object,
+        schema: {
+          filepath: {
+            type: String,
+          },
+          source: {
+            type: String,
+          },
+        },
+        default: undefined,
+      },
     provider: {
       type: String,
       required: true,
@@ -42,7 +56,7 @@ const agentSchema = mongoose.Schema(
       default: undefined,
     },
     tool_kwargs: {
-      type: [{ type: mongoose.Schema.Types.Mixed }],
+      type: [{ type: dynamoose.type.ANY }],
     },
     file_ids: {
       type: [String],
@@ -53,13 +67,11 @@ const agentSchema = mongoose.Schema(
       default: undefined,
     },
     author: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
       required: true,
     },
     projectIds: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: 'Project',
+      type: [String],
       index: true,
     },
   },

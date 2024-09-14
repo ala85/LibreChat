@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 
-const shareSchema = mongoose.Schema(
+const shareSchema = new dynamoose.Schema(
   {
     conversationId: {
       type: String,
@@ -14,7 +14,7 @@ const shareSchema = mongoose.Schema(
       type: String,
       index: true,
     },
-    messages: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Message' }],
+    messages: [{ type: String }],
     shareId: {
       type: String,
       index: true,
@@ -35,4 +35,4 @@ const shareSchema = mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model('SharedLink', shareSchema);
+module.exports = dynamoose.model('SharedLink', shareSchema);

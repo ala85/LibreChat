@@ -1,9 +1,8 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 
-const balanceSchema = mongoose.Schema({
+const balanceSchema = new dynamoose.Schema({
   user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    type: String,
     index: true,
     required: true,
   },

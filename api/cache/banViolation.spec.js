@@ -10,7 +10,7 @@ jest.mock('./getLogStores', () => {
     const math = require('../server/utils/math');
     const mockGet = jest.fn();
     const mockSet = jest.fn();
-    class KeyvMongo extends EventEmitter {
+    class KeyvDynamoDb extends EventEmitter {
       constructor(url = 'mongodb://127.0.0.1:27017', options) {
         super();
         this.ttlSupport = false;
@@ -33,7 +33,7 @@ jest.mock('./getLogStores', () => {
       set = mockSet;
     }
 
-    return new KeyvMongo('', {
+    return new KeyvDynamoDb('', {
       namespace: CacheKeys.BANS,
       ttl: math(process.env.BAN_DURATION, 7200000),
     });

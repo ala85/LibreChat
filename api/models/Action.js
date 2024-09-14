@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const actionSchema = require('./schema/action');
 
-const Action = mongoose.model('action', actionSchema);
+const Action = dynamoose.model('action', actionSchema);
 
 /**
  * Update an action with new data without overwriting existing properties,

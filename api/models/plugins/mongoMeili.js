@@ -1,5 +1,5 @@
 const _ = require('lodash');
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { MeiliSearch } = require('meilisearch');
 const { cleanUpPrimaryKeyValue } = require('~/lib/utils/misc');
 const logger = require('~/config/meiliLogger');
@@ -304,7 +304,7 @@ module.exports = function mongoMeili(schema, options) {
     try {
       if (Object.prototype.hasOwnProperty.call(schema.obj, 'messages')) {
         const convoIndex = client.index('convos');
-        const deletedConvos = await mongoose.model('Conversation').find(this._conditions).lean();
+        const deletedConvos = await dynamoose.model('Conversation').find(this._conditions).lean();
         let promises = [];
         for (const convo of deletedConvos) {
           promises.push(convoIndex.deleteDocument(convo.conversationId));
@@ -314,7 +314,7 @@ module.exports = function mongoMeili(schema, options) {
 
       if (Object.prototype.hasOwnProperty.call(schema.obj, 'messageId')) {
         const messageIndex = client.index('messages');
-        const deletedMessages = await mongoose.model('Message').find(this._conditions).lean();
+        const deletedMessages = await dynamoose.model('Message').find(this._conditions).lean();
         let promises = [];
         for (const message of deletedMessages) {
           promises.push(messageIndex.deleteDocument(message.messageId));

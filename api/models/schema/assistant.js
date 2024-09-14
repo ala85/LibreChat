@@ -1,10 +1,9 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 
-const assistantSchema = mongoose.Schema(
+const assistantSchema = new dynamoose.Schema(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
       required: true,
     },
     assistant_id: {
@@ -12,6 +11,7 @@ const assistantSchema = mongoose.Schema(
       index: true,
       required: true,
     },
+    /*
     avatar: {
       type: {
         filepath: String,
@@ -19,6 +19,19 @@ const assistantSchema = mongoose.Schema(
       },
       default: undefined,
     },
+    */
+    avatar: {
+        type: Object,
+        schema: {
+          filepath: {
+            type: String,
+          },
+          source: {
+            type: String,
+          },
+        },
+        default: undefined,
+      },
     conversation_starters: {
       type: [String],
       default: [],

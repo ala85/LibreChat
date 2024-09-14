@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { v4: uuidv4 } = require('uuid');
 
-jest.mock('mongoose');
+jest.mock('dynamoose');
 
 const mockFindQuery = {
   select: jest.fn().mockReturnThis(),
@@ -20,7 +20,7 @@ const mockSchema = {
   deleteMany: jest.fn(),
 };
 
-mongoose.model.mockReturnValue(mockSchema);
+dynamoose.model.mockReturnValue(mockSchema);
 
 jest.mock('~/models/schema/messageSchema', () => mockSchema);
 

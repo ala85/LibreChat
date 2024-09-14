@@ -42,7 +42,7 @@ const updateUserPluginsService = async (user, pluginKey, action) => {
  *              an error indicating that there is no user key available.
  */
 const getUserKey = async ({ userId, name }) => {
-  const keyValue = await Key.findOne({ userId, name }).lean();
+  const keyValue = await Key.findOne({ userId, name });
   if (!keyValue) {
     throw new Error(
       JSON.stringify({
@@ -89,7 +89,7 @@ const getUserKeyValues = async ({ userId, name }) => {
  *              returns its expiry date. If the key is not found, it returns null for the expiry date.
  */
 const getUserKeyExpiry = async ({ userId, name }) => {
-  const keyValue = await Key.findOne({ userId, name }).lean();
+  const keyValue = await Key.findOne({ userId, name });
   if (!keyValue) {
     return { expiresAt: null };
   }

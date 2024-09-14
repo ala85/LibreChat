@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const assistantSchema = require('./schema/assistant');
 
-const Assistant = mongoose.model('assistant', assistantSchema);
+const Assistant = dynamoose.model('assistant', assistantSchema);
 
 /**
  * Update an assistant with new data without overwriting existing properties,
@@ -38,11 +38,11 @@ const getAssistant = async (searchParams) => await Assistant.findOne(searchParam
 const getAssistants = async (searchParams, select = null) => {
   let query = Assistant.find(searchParams);
 
-  if (select) {
+  /*if (select) {
     query = query.select(select);
-  }
+  }*/
 
-  return await query.lean();
+  return query;
 };
 
 /**

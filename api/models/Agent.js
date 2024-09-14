@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { GLOBAL_PROJECT_NAME } = require('librechat-data-provider').Constants;
 const {
   getProjectByName,
@@ -8,7 +8,7 @@ const {
 } = require('./Project');
 const agentSchema = require('./schema/agent');
 
-const Agent = mongoose.model('agent', agentSchema);
+const Agent = dynamoose.model('agent', agentSchema);
 
 /**
  * Create an agent with the provided data.

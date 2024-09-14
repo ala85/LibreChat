@@ -1,5 +1,6 @@
 const { FileSources } = require('librechat-data-provider');
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
+const { v4: uuidv4 } = require('uuid');
 
 /**
  * @typedef {Object} MongoFile
@@ -27,10 +28,15 @@ const mongoose = require('mongoose');
  */
 
 /** @type {MongooseSchema<MongoFile>} */
-const fileSchema = mongoose.Schema(
+const fileSchema = new dynamoose.Schema(
   {
+    _id: {
+      type: String,
+      hashKey: true, // Primary key
+      default: uuidv4, // Automatically generate a UUID
+    },
     user: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: 'User',
       index: true,
       required: true,
@@ -101,6 +107,7 @@ const fileSchema = mongoose.Schema(
   },
 );
 
-fileSchema.index({ createdAt: 1, updatedAt: 1 });
+// FIXME
+//fileSchema.index({ createdAt: 1, updatedAt: 1 });
 
 module.exports = fileSchema;

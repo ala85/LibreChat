@@ -660,13 +660,13 @@
 
 /**
  * @exports MongooseSchema
- * @typedef {import('mongoose').Schema} MongooseSchema
+ * @typedef {import('dynamoose').Schema} MongooseSchema
  * @memberof typedefs
  */
 
 /**
  * @exports ObjectId
- * @typedef {import('mongoose').Types.ObjectId} ObjectId
+ * @typedef {import('dynamoose').Types.ObjectId} ObjectId
  * @memberof typedefs
  */
 
@@ -1423,7 +1423,7 @@
 
 /**
  * @typedef {object} txData - Transaction data.
- * @property {mongoose.Schema.Types.ObjectId} user - The user ID.
+ * @property {dynamoose.Schema.Types.ObjectId} user - The user ID.
  * @property {String} conversationId - The ID of the conversation.
  * @property {String} model - The model name.
  * @property {String} context - The context in which the transaction is made.

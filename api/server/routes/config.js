@@ -34,7 +34,9 @@ router.get('/', async function (req, res) {
 
   const instanceProject = await getProjectByName(Constants.GLOBAL_PROJECT_NAME, '_id');
 
+  console.log("route.getXXXXXX", instanceProject)
   const ldap = getLdapConfig();
+
 
   try {
     /** @type {TStartupConfig} */
@@ -74,7 +76,7 @@ router.get('/', async function (req, res) {
       sharedLinksEnabled,
       publicSharedLinksEnabled,
       analyticsGtmId: process.env.ANALYTICS_GTM_ID,
-      instanceProjectId: instanceProject._id.toString(),
+      instanceProjectId: instanceProject ? instanceProject._id.toString() : null,
     };
 
     if (ldap) {

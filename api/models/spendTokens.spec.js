@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 
 jest.mock('./Transaction', () => ({
   Transaction: {
@@ -31,7 +31,7 @@ describe('spendTokens', () => {
 
   it('should create transactions for both prompt and completion tokens', async () => {
     const txData = {
-      user: new mongoose.Types.ObjectId(),
+      user: new dynamoose.Types.ObjectId(),
       conversationId: 'test-convo',
       model: 'gpt-3.5-turbo',
       context: 'test',
@@ -65,7 +65,7 @@ describe('spendTokens', () => {
 
   it('should handle zero completion tokens', async () => {
     const txData = {
-      user: new mongoose.Types.ObjectId(),
+      user: new dynamoose.Types.ObjectId(),
       conversationId: 'test-convo',
       model: 'gpt-3.5-turbo',
       context: 'test',
@@ -99,7 +99,7 @@ describe('spendTokens', () => {
 
   it('should handle undefined token counts', async () => {
     const txData = {
-      user: new mongoose.Types.ObjectId(),
+      user: new dynamoose.Types.ObjectId(),
       conversationId: 'test-convo',
       model: 'gpt-3.5-turbo',
       context: 'test',
@@ -114,7 +114,7 @@ describe('spendTokens', () => {
   it('should not update balance when CHECK_BALANCE is false', async () => {
     process.env.CHECK_BALANCE = 'false';
     const txData = {
-      user: new mongoose.Types.ObjectId(),
+      user: new dynamoose.Types.ObjectId(),
       conversationId: 'test-convo',
       model: 'gpt-3.5-turbo',
       context: 'test',
@@ -136,7 +136,7 @@ describe('spendTokens', () => {
 
   it('should create structured transactions for both prompt and completion tokens', async () => {
     const txData = {
-      user: new mongoose.Types.ObjectId(),
+      user: new dynamoose.Types.ObjectId(),
       conversationId: 'test-convo',
       model: 'claude-3-5-sonnet',
       context: 'test',

@@ -12,11 +12,11 @@ const User = require('./User');
 const getUserById = async function (userId, fieldsToSelect = null) {
   const query = User.findById(userId);
 
-  if (fieldsToSelect) {
+  /*if (fieldsToSelect) {
     query.select(fieldsToSelect);
-  }
+  }*/
 
-  return await query.lean();
+  return query;
 };
 
 /**
@@ -26,12 +26,7 @@ const getUserById = async function (userId, fieldsToSelect = null) {
  * @returns {Promise<MongoUser>} A plain object representing the user document, or `null` if no user is found.
  */
 const findUser = async function (searchCriteria, fieldsToSelect = null) {
-  const query = User.findOne(searchCriteria);
-  if (fieldsToSelect) {
-    query.select(fieldsToSelect);
-  }
-
-  return await query.lean();
+  return User.findOne(searchCriteria);
 };
 
 /**
@@ -72,6 +67,8 @@ const createUser = async (data, disableTTL = true, returnUser = false) => {
 
   const user = await User.create(userData);
   if (returnUser) {
+    console.log("createUser", user)
+    console.log("returnUser", returnUser)
     return user.toObject();
   }
   return user._id;

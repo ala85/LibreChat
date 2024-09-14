@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { MongoMemoryServer } = require('mongodb-memory-server');
 const {
   SystemRoles,
@@ -24,11 +24,11 @@ let mongoServer;
 beforeAll(async () => {
   mongoServer = await MongoMemoryServer.create();
   const mongoUri = mongoServer.getUri();
-  await mongoose.connect(mongoUri);
+  await dynamoose.connect(mongoUri);
 });
 
 afterAll(async () => {
-  await mongoose.disconnect();
+  await dynamoose.disconnect();
   await mongoServer.stop();
 });
 

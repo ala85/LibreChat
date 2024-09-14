@@ -9,7 +9,7 @@ jest.mock('~/cache/getLogStores', () => {
     const EventEmitter = require('events');
     const { CacheKeys } = require('librechat-data-provider');
 
-    class KeyvMongo extends EventEmitter {
+    class KeyvDynamoDb extends EventEmitter {
       constructor(url = 'mongodb://127.0.0.1:27017', options) {
         super();
         this.ttlSupport = false;
@@ -42,7 +42,7 @@ jest.mock('~/cache/getLogStores', () => {
       };
     }
 
-    return new KeyvMongo('', {
+    return new KeyvDynamoDb('', {
       namespace: CacheKeys.ENCODED_DOMAINS,
       ttl: 0,
     });

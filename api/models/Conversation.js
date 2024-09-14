@@ -9,7 +9,7 @@ const logger = require('~/config/winston');
  */
 const searchConversation = async (conversationId) => {
   try {
-    return await Conversation.findOne({ conversationId }, 'conversationId user').lean();
+    return await Conversation.findOne({ conversationId }, 'conversationId user');
   } catch (error) {
     logger.error('[searchConversation] Error searching conversation', error);
     throw new Error('Error searching conversation');
@@ -24,7 +24,7 @@ const searchConversation = async (conversationId) => {
  */
 const getConvo = async (user, conversationId) => {
   try {
-    return await Conversation.findOne({ user, conversationId }).lean();
+    return await Conversation.findOne({ user, conversationId });
   } catch (error) {
     logger.error('[getConvo] Error getting single conversation', error);
     return { message: 'Error getting single conversation' };
@@ -46,7 +46,10 @@ module.exports = {
       if (metadata && metadata?.context) {
         logger.debug(`[saveConvo] ${metadata.context}`);
       }
-      const messages = await getMessages({ conversationId }, '_id');
+      const messages = await getMessages({ conversationId }, 'messageId');
+
+      console.log("saveConvo.conversationId", conversationId)
+      console.log("saveConvo.messages", messages)
       const update = { ...convo, messages, user: req.user.id };
       if (newConversationId) {
         update.conversationId = newConversationId;
@@ -60,8 +63,8 @@ module.exports = {
           upsert: true,
         },
       );
-
-      return conversation.toObject();
+      console.log("saveConvo.conversation", conversation)
+      return conversation;
     } catch (error) {
       logger.error('[saveConvo] Error saving conversation', error);
       if (metadata && metadata?.context) {
@@ -101,6 +104,7 @@ module.exports = {
     try {
       const totalConvos = (await Conversation.countDocuments(query)) || 1;
       const totalPages = Math.ceil(totalConvos / pageSize);
+      console.log("getConvosByPage", query)
       const convos = await Conversation.find(query)
         .sort({ updatedAt: -1 })
         .skip((pageNumber - 1) * pageSize)

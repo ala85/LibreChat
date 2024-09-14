@@ -1,11 +1,10 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+const dynamoose = require('dynamoose');
+const Schema = dynamoose.Schema;
 
 const tokenSchema = new Schema({
   userId: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'user',
+    type: String,
+    required: true
   },
   email: {
     type: String,
@@ -25,6 +24,6 @@ const tokenSchema = new Schema({
   },
 });
 
-tokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
+//tokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
 module.exports = tokenSchema;

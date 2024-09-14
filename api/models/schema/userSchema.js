@@ -1,5 +1,6 @@
-const mongoose = require('mongoose');
+const dynamoose = require('dynamoose');
 const { SystemRoles } = require('librechat-data-provider');
+const { v4: uuidv4 } = require('uuid'); // For generating unique IDs
 
 /**
  * @typedef {Object} MongoSession
@@ -31,16 +32,21 @@ const { SystemRoles } = require('librechat-data-provider');
  */
 
 /** @type {MongooseSchema<MongoSession>} */
-const Session = mongoose.Schema({
+const Session = new dynamoose.Schema({
   refreshToken: {
     type: String,
     default: '',
   },
 });
 
-/** @type {MongooseSchema<MongoUser>} */
-const userSchema = mongoose.Schema(
+/** @type {DynamooseSchema<MongoUser>} */
+const userSchema = new dynamoose.Schema(
   {
+    _id: {
+      type: String,
+      hashKey: true, // Primary key
+      default: uuidv4, // Automatically generate a UUID
+    },
     name: {
       type: String,
     },
@@ -71,6 +77,7 @@ const userSchema = mongoose.Schema(
     avatar: {
       type: String,
       required: false,
+      validate: (value) => value === null || typeof value === 'string',
     },
     provider: {
       type: String,
