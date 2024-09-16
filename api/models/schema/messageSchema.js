@@ -151,9 +151,9 @@ Message.find = async function (query) {
 Message.findOneAndUpdate = async function (searchCriteria, updateData, options = {}) {
   const { upsert = false, new: returnNew = false } = options;
 
-  console.log("findOneAndUpdate.searchCriteria", searchCriteria)
-  console.log("findOneAndUpdate.updateData", updateData)
-  console.log("findOneAndUpdate.options", options)
+  //console.log("findOneAndUpdate.searchCriteria", searchCriteria)
+  //console.log("findOneAndUpdate.updateData", updateData)
+  //console.log("findOneAndUpdate.options", options)
   try {
     let result = await Message.query(searchCriteria).exec();
 
@@ -172,6 +172,49 @@ Message.findOneAndUpdate = async function (searchCriteria, updateData, options =
     return returnNew ? result : result;
   } catch (error) {
     throw new Error(`Failed to find or update message: ${error.message}`);
+  }
+};
+
+Message.deleteMany = async (filter) => {
+
+  try {
+    const {user, conversationIds} = filter;
+
+    let messages = null;
+    console.log(filter)
+    if (conversationIds) {
+        // Scan for all messages with the specified conversation IDs
+        messages = await Message.scan('conversationId')
+        .using("conversationIdGlobalIndex")
+        .in(conversationIds)
+        .exec();
+
+    } else if (user) {
+        messages = await Message.query('user')
+         .eq(user)
+         .using('userGlobalIndex') // Specify the index to use
+         .exec();
+    }
+
+    if (!messages || !messages.length) {
+        console.log("No messages to delete")
+        return 0;
+    }
+
+    console.log("Something to delete!!!!")
+    // Delete all messages matching the conversation IDs
+    const deletePromises = messages.map(message =>
+      message.delete({ id: message.id })
+    );
+
+    await Promise.all(deletePromises);
+    console.log("Deleted messages: ", deletePromises.length)
+    return deletePromises.length;
+
+
+    return deletePromises.length; // Return the count of deleted messages
+  } catch (error) {
+    throw new Error(`Failed to delete messages: ${error.message}`);
   }
 };
 

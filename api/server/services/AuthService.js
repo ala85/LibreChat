@@ -148,11 +148,11 @@ const registerUser = async (user, additionalData = {}) => {
   }
 
   const { email, password, name, username } = user;
-
   let newUserId;
   try {
+        console.log("11111111")
     const existingUser = await findUser({ email }, 'email _id');
-
+ console.log("22222222")
     if (existingUser) {
       logger.info(
         'Register User - Email in use',
@@ -164,7 +164,7 @@ const registerUser = async (user, additionalData = {}) => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       return { status: 200, message: genericVerificationMessage };
     }
-
+ console.log("333333333")
     if (!(await isDomainAllowed(email))) {
       const errorMessage =
         'The email address provided cannot be used. Please use a different email address.';
@@ -187,6 +187,7 @@ const registerUser = async (user, additionalData = {}) => {
       ...additionalData,
     };
 
+    console.log("hhhhhhhhhhhhh")
     const emailEnabled = checkEmailConfig();
     const newUser = await createUser(newUserData, false, true);
     newUserId = newUser._id;
@@ -197,6 +198,7 @@ const registerUser = async (user, additionalData = {}) => {
         name,
       });
     } else {
+    console.log("uuuuuuuuuuuuu")
       await updateUser(newUserId, { emailVerified: true });
     }
 

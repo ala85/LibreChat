@@ -15,7 +15,7 @@ const Action = dynamoose.model('action', actionSchema);
  */
 const updateAction = async (searchParams, updateData) => {
   const options = { new: true, upsert: true };
-  return await Action.findOneAndUpdate(searchParams, updateData, options).lean();
+  return await Action.findOneAndUpdate(searchParams, updateData, options);
 };
 
 /**
@@ -26,7 +26,7 @@ const updateAction = async (searchParams, updateData) => {
  * @returns {Promise<Array<Action>>} A promise that resolves to an array of action documents as plain objects.
  */
 const getActions = async (searchParams, includeSensitive = false) => {
-  const actions = await Action.find(searchParams).lean();
+  const actions = await Action.find(searchParams);
 
   if (!includeSensitive) {
     for (let i = 0; i < actions.length; i++) {
@@ -56,7 +56,7 @@ const getActions = async (searchParams, includeSensitive = false) => {
  * @returns {Promise<Action>} A promise that resolves to the deleted action document as a plain object, or null if no document was found.
  */
 const deleteAction = async (searchParams) => {
-  return await Action.findOneAndDelete(searchParams).lean();
+  return await Action.findOneAndDelete(searchParams);
 };
 
 /**

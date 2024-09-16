@@ -43,7 +43,6 @@ function AccountSettings() {
             >
               <div className="-ml-0.9 -mt-0.8 h-8 w-8 flex-shrink-0">
                 <div className="relative flex">
-                  {name.length === 0 ? (
                     <div
                       style={{
                         backgroundColor: 'rgb(121, 137, 255)',
@@ -55,9 +54,6 @@ function AccountSettings() {
                     >
                       <UserIcon />
                     </div>
-                  ) : (
-                    <img className="rounded-full" src={user?.avatar ?? avatarSrc} alt="avatar" />
-                  )}
                 </div>
               </div>
               <div

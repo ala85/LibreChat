@@ -230,7 +230,7 @@ module.exports = {
         { $setOnInsert: { ...group, author, authorName, productionId: null } },
         { new: true, upsert: true },
       )
-        .lean()
+
         .select('-__v')
         .exec();
 
@@ -239,7 +239,7 @@ module.exports = {
         { $setOnInsert: { ...prompt, author, groupId: newPromptGroup._id } },
         { new: true, upsert: true },
       )
-        .lean()
+
         .select('-__v')
         .exec();
 
@@ -248,7 +248,7 @@ module.exports = {
         { productionId: newPrompt._id },
         { new: true },
       )
-        .lean()
+
         .select('-__v')
         .exec();
 
@@ -298,7 +298,7 @@ module.exports = {
   },
   getPrompts: async (filter) => {
     try {
-      return await Prompt.find(filter).sort({ createdAt: -1 }).lean();
+      return await Prompt.find(filter).sort({ createdAt: -1 });
     } catch (error) {
       logger.error('Error getting prompts', error);
       return { message: 'Error getting prompts' };
@@ -309,7 +309,7 @@ module.exports = {
       if (filter.groupId) {
         filter.groupId = new ObjectId(filter.groupId);
       }
-      return await Prompt.findOne(filter).lean();
+      return await Prompt.findOne(filter);
     } catch (error) {
       logger.error('Error getting prompt', error);
       return { message: 'Error getting prompt' };
@@ -361,7 +361,7 @@ module.exports = {
           select: '-_id -__v -user',
         })
         .select('-_id -__v -user')
-        .lean();
+        ;
     } catch (error) {
       logger.error('Error getting prompt groups', error);
       return { message: 'Error getting prompt groups' };
@@ -369,7 +369,7 @@ module.exports = {
   },
   getPromptGroup: async (filter) => {
     try {
-      return await PromptGroup.findOne(filter).lean();
+      return await PromptGroup.findOne(filter);
     } catch (error) {
       logger.error('Error getting prompt group', error);
       return { message: 'Error getting prompt group' };
@@ -401,7 +401,7 @@ module.exports = {
     const remainingPrompts = await Prompt.find({ groupId })
       .select('_id')
       .sort({ createdAt: 1 })
-      .lean();
+      ;
 
     if (remainingPrompts.length === 0) {
       await PromptGroup.deleteOne({ _id: groupId });
@@ -415,7 +415,7 @@ module.exports = {
         },
       };
     } else {
-      const promptGroup = await PromptGroup.findById(groupId).lean();
+      const promptGroup = await PromptGroup.findById(groupId);
       if (promptGroup.productionId.toString() === promptId.toString()) {
         await PromptGroup.updateOne(
           { _id: groupId },
@@ -476,7 +476,7 @@ module.exports = {
    */
   makePromptProduction: async (promptId) => {
     try {
-      const prompt = await Prompt.findById(promptId).lean();
+      const prompt = await Prompt.findById(promptId);
 
       if (!prompt) {
         throw new Error('Prompt not found');
@@ -487,7 +487,7 @@ module.exports = {
         { productionId: prompt._id },
         { new: true },
       )
-        .lean()
+
         .exec();
 
       return {

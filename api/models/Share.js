@@ -82,7 +82,7 @@ async function getSharedMessages(shareId) {
         select: '-_id -__v -user',
       })
       .select('-_id -__v -user')
-      .lean();
+      ;
 
     if (!share || !share.conversationId || !share.isPublic) {
       return null;
@@ -117,7 +117,7 @@ async function getSharedLinks(user, pageNumber = 1, pageSize = 25, isPublic = tr
         .skip((pageNumber - 1) * pageSize)
         .limit(pageSize)
         .select('-_id -__v -user')
-        .lean(),
+        ,
     ]);
 
     const totalPages = Math.ceil((totalConvos || 1) / pageSize);
@@ -143,7 +143,7 @@ async function getSharedLinks(user, pageNumber = 1, pageSize = 25, isPublic = tr
  */
 async function createSharedLink(user, { conversationId, ...shareData }) {
   try {
-    const share = await SharedLink.findOne({ conversationId }).select('-_id -__v -user').lean();
+    const share = await SharedLink.findOne({ conversationId }).select('-_id -__v -user');
     if (share) {
       const newConvoId = anonymizeConvoId();
       const sharedConvo = anonymizeConvo(share);
@@ -159,7 +159,7 @@ async function createSharedLink(user, { conversationId, ...shareData }) {
     const newShare = await SharedLink.findOneAndUpdate({ conversationId, user }, update, {
       new: true,
       upsert: true,
-    }).lean();
+    });
 
     const newConvoId = anonymizeConvoId();
     const sharedConvo = anonymizeConvo(newShare);
@@ -182,7 +182,7 @@ async function createSharedLink(user, { conversationId, ...shareData }) {
  */
 async function updateSharedLink(user, { conversationId, ...shareData }) {
   try {
-    const share = await SharedLink.findOne({ conversationId }).select('-_id -__v -user').lean();
+    const share = await SharedLink.findOne({ conversationId }).select('-_id -__v -user');
     if (!share) {
       return { message: 'Share not found' };
     }
@@ -192,7 +192,7 @@ async function updateSharedLink(user, { conversationId, ...shareData }) {
     const updatedShare = await SharedLink.findOneAndUpdate({ conversationId, user }, update, {
       new: true,
       upsert: false,
-    }).lean();
+    });
 
     const newConvoId = anonymizeConvoId();
     const sharedConvo = anonymizeConvo(updatedShare);

@@ -38,9 +38,9 @@ const getRoleByName = async function (roleName, fieldsToSelect = null) {
     if (cachedRole) {
       return cachedRole;
     }
-    let query = findOne({ name: roleName });
+    let query = await findOne({ name: roleName });
     if (fieldsToSelect) {
-      query = query.select(fieldsToSelect);
+      query = query.attributes(fieldsToSelect);
     }
     let role = await query;
 
@@ -48,7 +48,7 @@ const getRoleByName = async function (roleName, fieldsToSelect = null) {
       role = roleDefaults[roleName];
       role = await new Role(role).save();
       await cache.set(roleName, role);
-      return role.toObject();
+      return role;
     }
     await cache.set(roleName, role);
     return role;
@@ -65,7 +65,7 @@ const getRoleByName = async function (roleName, fieldsToSelect = null) {
  * @returns {Promise<TRole>} Updated role document.
  */
 const updateRoleByName = async function (roleName, updates) {
-  console.log("updateRoleByName")
+  logger.debug("updateRoleByName")
   try {
     const cache = getLogStores(CacheKeys.ROLES);
 
@@ -105,7 +105,7 @@ const permissionSchemas = {
  * @param {Object.<PermissionTypes, Object.<Permissions, boolean>>} permissionsUpdate - Permissions to update and their values.
  */
 async function updateAccessPermissions(roleName, permissionsUpdate) {
-  console.log("updateAccessPermissions");
+  logger.debug("updateAccessPermissions");
 
   // Prepare the updates
   const updates = {};
@@ -123,7 +123,7 @@ async function updateAccessPermissions(roleName, permissionsUpdate) {
     // Fetch the role by name
     const role = await findOne({name: roleName});
     if (!role) {
-      console.log(`Role '${roleName}' not found.`);
+      logger.debug(`Role '${roleName}' not found.`);
       return;
     }
 
@@ -171,7 +171,7 @@ const initializeRoles = async function () {
 
   for (const roleName of defaultRoles) {
     let role = await findOne({ name: roleName });
-    console.log("role:", role)
+    logger.debug("role:", role)
     if (!role) {
       // Create new role if it doesn't exist
       role = new Role(roleDefaults[roleName]);

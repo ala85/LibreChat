@@ -62,7 +62,7 @@ async function findToken(query) {
 
     const token = await Token.findOne({
       $and: conditions,
-    }).lean();
+    });
 
     return token;
   } catch (error) {

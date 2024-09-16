@@ -32,12 +32,12 @@ const createConversationTag = async (user, data) => {
   try {
     const { tag, description, addToConversation, conversationId } = data;
 
-    const existingTag = await ConversationTag.findOne({ user, tag }).lean();
+    const existingTag = await ConversationTag.findOne({ user, tag });
     if (existingTag) {
       return existingTag;
     }
 
-    const maxPosition = await ConversationTag.findOne({ user }).sort('-position').lean();
+    const maxPosition = await ConversationTag.findOne({ user }).sort('-position');
     const position = (maxPosition?.position || 0) + 1;
 
     const newTag = await ConversationTag.findOneAndUpdate(
@@ -86,13 +86,13 @@ const updateConversationTag = async (user, oldTag, data) => {
   try {
     const { tag: newTag, description, position } = data;
 
-    const existingTag = await ConversationTag.findOne({ user, tag: oldTag }).lean();
+    const existingTag = await ConversationTag.findOne({ user, tag: oldTag });
     if (!existingTag) {
       return null;
     }
 
     if (newTag && newTag !== oldTag) {
-      const tagAlreadyExists = await ConversationTag.findOne({ user, tag: newTag }).lean();
+      const tagAlreadyExists = await ConversationTag.findOne({ user, tag: newTag });
       if (tagAlreadyExists) {
         throw new Error('Tag already exists');
       }
@@ -163,7 +163,7 @@ const adjustPositions = async (user, oldPosition, newPosition) => {
  */
 const deleteConversationTag = async (user, tag) => {
   try {
-    const deletedTag = await ConversationTag.findOneAndDelete({ user, tag }).lean();
+    const deletedTag = await ConversationTag.findOneAndDelete({ user, tag });
     if (!deletedTag) {
       return null;
     }
@@ -191,8 +191,9 @@ const deleteConversationTag = async (user, tag) => {
  */
 const updateTagsForConversation = async (user, conversationId, tags) => {
   try {
-    const conversation = await Conversation.findOne({ user, conversationId }).lean();
+    const conversation = await Conversation.findOne({ user, conversationId });
     if (!conversation) {
+        console.log("qqqqqqqqqqqqqq22222")
       throw new Error('Conversation not found');
     }
 

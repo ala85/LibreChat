@@ -9,7 +9,6 @@ const transactionSchema = new dynamoose.Schema(
     },
     conversationId: {
       type: String,
-      ref: 'Conversation',
       index: true,
     },
     tokenType: {

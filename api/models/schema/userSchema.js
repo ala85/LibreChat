@@ -53,6 +53,7 @@ const userSchema = new dynamoose.Schema(
     username: {
       type: String,
       lowercase: true,
+      index: true,
       default: '',
     },
     email: {
@@ -135,7 +136,30 @@ const userSchema = new dynamoose.Schema(
     },
   },
 
-  { timestamps: true },
+   {
+      "timestamps": {
+        "createdAt": {
+            "createdAt": {
+                "type": {
+                    "value": Date,
+                    "settings": {
+                        "storage": "iso"
+                    }
+                }
+            }
+        },
+        "updatedAt": {
+                "updatedAt": {
+                    "type": {
+                        "value": Date,
+                        "settings": {
+                            "storage": "iso"
+                        }
+                    }
+                }
+            }
+      }
+   },
 );
 
 module.exports = userSchema;

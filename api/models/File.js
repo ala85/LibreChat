@@ -69,7 +69,7 @@ const createFile = async (data, disableTTL) => {
   return await File.findOneAndUpdate({ file_id: data.file_id }, fileData, {
     new: true,
     upsert: true,
-  }).lean();
+  });
 };
 
 /**
@@ -83,7 +83,7 @@ const updateFile = async (data) => {
     $set: update,
     $unset: { expiresAt: '' }, // Remove the expiresAt field to prevent TTL
   };
-  return await File.findOneAndUpdate({ file_id }, updateOperation, { new: true }).lean();
+  return await File.findOneAndUpdate({ file_id }, updateOperation, { new: true });
 };
 
 /**
@@ -97,7 +97,7 @@ const updateFileUsage = async (data) => {
     $inc: { usage: inc },
     $unset: { expiresAt: '', temp_file_id: '' },
   };
-  return await File.findOneAndUpdate({ file_id }, updateOperation, { new: true }).lean();
+  return await File.findOneAndUpdate({ file_id }, updateOperation, { new: true });
 };
 
 /**
@@ -106,7 +106,7 @@ const updateFileUsage = async (data) => {
  * @returns {Promise<MongoFile>} A promise that resolves to the deleted file document or null.
  */
 const deleteFile = async (file_id) => {
-  return await File.findOneAndDelete({ file_id }).lean();
+  return await File.findOneAndDelete({ file_id });
 };
 
 /**
@@ -115,7 +115,7 @@ const deleteFile = async (file_id) => {
  * @returns {Promise<MongoFile>} A promise that resolves to the deleted file document or null.
  */
 const deleteFileByFilter = async (filter) => {
-  return await File.findOneAndDelete(filter).lean();
+  return await File.findOneAndDelete(filter);
 };
 
 /**

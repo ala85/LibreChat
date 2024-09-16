@@ -25,7 +25,6 @@ const UserAvatar = memo(({ size, user, avatarSrc, username, className }: UserAva
     }}
     className={cn('relative flex items-center justify-center', className ?? '')}
   >
-    {!(user?.avatar ?? '') && (!(user?.username ?? '') || user?.username.trim() === '') ? (
       <div
         style={{
           backgroundColor: 'rgb(121, 137, 255)',
@@ -37,9 +36,6 @@ const UserAvatar = memo(({ size, user, avatarSrc, username, className }: UserAva
       >
         <UserIcon />
       </div>
-    ) : (
-      <img className="rounded-full" src={user?.avatar ?? avatarSrc} alt="avatar" />
-    )}
   </div>
 ));
 

@@ -28,7 +28,7 @@ const createAgent = async (agentData) => {
  * @param {string} searchParameter.author - The user ID of the agent's author.
  * @returns {Promise<Agent|null>} The agent document as a plain object, or null if not found.
  */
-const getAgent = async (searchParameter) => await Agent.findOne(searchParameter).lean();
+const getAgent = async (searchParameter) => await Agent.findOne(searchParameter);
 
 /**
  * Update an agent with new data without overwriting existing
@@ -42,7 +42,7 @@ const getAgent = async (searchParameter) => await Agent.findOne(searchParameter)
  */
 const updateAgent = async (searchParameter, updateData) => {
   const options = { new: true, upsert: true };
-  return await Agent.findOneAndUpdate(searchParameter, updateData, options).lean();
+  return await Agent.findOneAndUpdate(searchParameter, updateData, options);
 };
 
 /**
@@ -84,7 +84,7 @@ const getListAgents = async (searchParameter) => {
     name: 1,
     avatar: 1,
     projectIds: 1,
-  }).lean();
+  });
 
   const hasMore = agents.length > 0;
   const firstId = agents.length > 0 ? agents[0].id : null;

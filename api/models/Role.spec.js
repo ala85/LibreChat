@@ -56,7 +56,7 @@ describe('updateAccessPermissions', () => {
       },
     });
 
-    const updatedRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const updatedRole = await Role.findOne({ name: SystemRoles.USER });
     expect(updatedRole[PermissionTypes.PROMPTS]).toEqual({
       CREATE: true,
       USE: true,
@@ -82,7 +82,7 @@ describe('updateAccessPermissions', () => {
       },
     });
 
-    const updatedRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const updatedRole = await Role.findOne({ name: SystemRoles.USER });
     expect(updatedRole[PermissionTypes.PROMPTS]).toEqual({
       CREATE: true,
       USE: true,
@@ -117,7 +117,7 @@ describe('updateAccessPermissions', () => {
       },
     });
 
-    const updatedRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const updatedRole = await Role.findOne({ name: SystemRoles.USER });
     expect(updatedRole[PermissionTypes.PROMPTS]).toEqual({
       CREATE: true,
       USE: true,
@@ -141,7 +141,7 @@ describe('updateAccessPermissions', () => {
       },
     });
 
-    const updatedRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const updatedRole = await Role.findOne({ name: SystemRoles.USER });
     expect(updatedRole[PermissionTypes.PROMPTS]).toEqual({
       CREATE: true,
       USE: false,
@@ -167,7 +167,7 @@ describe('updateAccessPermissions', () => {
       [PermissionTypes.BOOKMARKS]: { USE: false },
     });
 
-    const updatedRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const updatedRole = await Role.findOne({ name: SystemRoles.USER });
     expect(updatedRole[PermissionTypes.PROMPTS]).toEqual({
       CREATE: true,
       USE: false,
@@ -192,7 +192,7 @@ describe('updateAccessPermissions', () => {
       [PermissionTypes.PROMPTS]: { USE: false, SHARED_GLOBAL: true },
     });
 
-    const updatedRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const updatedRole = await Role.findOne({ name: SystemRoles.USER });
     expect(updatedRole[PermissionTypes.PROMPTS]).toEqual({
       CREATE: true,
       USE: false,
@@ -214,7 +214,7 @@ describe('updateAccessPermissions', () => {
       },
     });
 
-    const updatedRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const updatedRole = await Role.findOne({ name: SystemRoles.USER });
     expect(updatedRole[PermissionTypes.MULTI_CONVO]).toEqual({
       USE: true,
     });
@@ -238,7 +238,7 @@ describe('updateAccessPermissions', () => {
       [PermissionTypes.MULTI_CONVO]: { USE: true },
     });
 
-    const updatedRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const updatedRole = await Role.findOne({ name: SystemRoles.USER });
     expect(updatedRole[PermissionTypes.PROMPTS]).toEqual({
       CREATE: true,
       USE: true,
@@ -263,7 +263,7 @@ describe('updateAccessPermissions', () => {
       },
     });
 
-    const updatedRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const updatedRole = await Role.findOne({ name: SystemRoles.USER });
     expect(updatedRole[PermissionTypes.MULTI_CONVO]).toEqual({
       USE: true,
     });
@@ -278,8 +278,8 @@ describe('initializeRoles', () => {
   it('should create default roles if they do not exist', async () => {
     await initializeRoles();
 
-    const adminRole = await Role.findOne({ name: SystemRoles.ADMIN }).lean();
-    const userRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const adminRole = await Role.findOne({ name: SystemRoles.ADMIN });
+    const userRole = await Role.findOne({ name: SystemRoles.USER });
 
     expect(adminRole).toBeTruthy();
     expect(userRole).toBeTruthy();
@@ -313,7 +313,7 @@ describe('initializeRoles', () => {
 
     await initializeRoles();
 
-    const userRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const userRole = await Role.findOne({ name: SystemRoles.USER });
 
     expect(userRole[PermissionTypes.PROMPTS]).toEqual(customUserRole[PermissionTypes.PROMPTS]);
     expect(userRole[PermissionTypes.BOOKMARKS]).toEqual(customUserRole[PermissionTypes.BOOKMARKS]);
@@ -331,7 +331,7 @@ describe('initializeRoles', () => {
 
     await initializeRoles();
 
-    const userRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const userRole = await Role.findOne({ name: SystemRoles.USER });
 
     expect(userRole[PermissionTypes.AGENTS]).toBeDefined();
     expect(userRole[PermissionTypes.AGENTS].CREATE).toBeDefined();
@@ -374,7 +374,7 @@ describe('initializeRoles', () => {
 
     await initializeRoles();
 
-    const adminRole = await Role.findOne({ name: SystemRoles.ADMIN }).lean();
+    const adminRole = await Role.findOne({ name: SystemRoles.ADMIN });
 
     expect(adminRole[PermissionTypes.PROMPTS]).toEqual(partialAdminRole[PermissionTypes.PROMPTS]);
     expect(adminRole[PermissionTypes.AGENTS]).toBeDefined();
@@ -386,8 +386,8 @@ describe('initializeRoles', () => {
   it('should include MULTI_CONVO permissions when creating default roles', async () => {
     await initializeRoles();
 
-    const adminRole = await Role.findOne({ name: SystemRoles.ADMIN }).lean();
-    const userRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const adminRole = await Role.findOne({ name: SystemRoles.ADMIN });
+    const userRole = await Role.findOne({ name: SystemRoles.USER });
 
     expect(adminRole[PermissionTypes.MULTI_CONVO]).toBeDefined();
     expect(userRole[PermissionTypes.MULTI_CONVO]).toBeDefined();
@@ -412,7 +412,7 @@ describe('initializeRoles', () => {
 
     await initializeRoles();
 
-    const userRole = await Role.findOne({ name: SystemRoles.USER }).lean();
+    const userRole = await Role.findOne({ name: SystemRoles.USER });
 
     expect(userRole[PermissionTypes.MULTI_CONVO]).toBeDefined();
     expect(userRole[PermissionTypes.MULTI_CONVO].USE).toBeDefined();

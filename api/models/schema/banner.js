@@ -29,7 +29,30 @@ const bannerSchema = new dynamoose.Schema(
     },
   },
 
-  { timestamps: true },
+  {
+      "timestamps": {
+        "createdAt": {
+            "createdAt": {
+                "type": {
+                    "value": Date,
+                    "settings": {
+                        "storage": "iso"
+                    }
+                }
+            }
+        },
+        "updatedAt": {
+                "updatedAt": {
+                    "type": {
+                        "value": Date,
+                        "settings": {
+                            "storage": "iso"
+                        }
+                    }
+                }
+            }
+      }
+  },
 );
 
 const Banner = dynamoose.model('Banner', bannerSchema);

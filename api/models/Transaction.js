@@ -28,31 +28,43 @@ Transaction.prototype.calculateTokenValue = function () {
  * @param {txData} txData - Transaction data.
  */
 Transaction.create = async function (txData) {
+  console.log("txData", txData)
+  console.log("0")
   const Transaction = this;
-
+  console.log("1")
   const transaction = new Transaction(txData);
+  console.log("2")
   transaction.endpointTokenConfig = txData.endpointTokenConfig;
+  console.log("3")
   transaction.calculateTokenValue();
-
+  console.log("4")
+  console.log("Transaction to be saved: ", transaction)
   await transaction.save();
+  console.log("5")
+  console.log("CHECK_BALANCE", process.env.CHECK_BALANCE)
 
   if (!isEnabled(process.env.CHECK_BALANCE)) {
     return;
   }
-
+  console.log("6")
   let balance = await Balance.findOne({ user: transaction.user });
+  console.log("6", balance)
   let incrementValue = transaction.tokenValue;
-
+  console.log("6", incrementValue)
+  console.log("7")
   if (balance && balance?.tokenCredits + incrementValue < 0) {
     incrementValue = -balance.tokenCredits;
   }
+  console.log("8")
+  console.log("8", incrementValue)
 
   balance = await Balance.findOneAndUpdate(
     { user: transaction.user },
-    { $inc: { tokenCredits: incrementValue } },
+    { $ADD: { tokenCredits: incrementValue } },
     { upsert: true, new: true },
-  ).lean();
-
+  );
+  console.log("9")
+  console.log("9", balance)
   return {
     rate: transaction.rate,
     user: transaction.user.toString(),
@@ -90,9 +102,9 @@ Transaction.createStructured = async function (txData) {
 
   balance = await Balance.findOneAndUpdate(
     { user: transaction.user },
-    { $inc: { tokenCredits: incrementValue } },
+    { $ADD: { tokenCredits: incrementValue } },
     { upsert: true, new: true },
-  ).lean();
+  );
 
   return {
     rate: transaction.rate,
@@ -174,7 +186,7 @@ Transaction.prototype.calculateStructuredTokenValue = function () {
  */
 async function getTransactions(filter) {
   try {
-    return await Transaction.find(filter).lean();
+    return await Transaction.find(filter);
   } catch (error) {
     logger.error('Error querying transactions:', error);
     throw error;

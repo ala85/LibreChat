@@ -6,7 +6,7 @@ const presetSchema = new dynamoose.Schema(
       type: String,
       unique: true,
       required: true,
-      index: true,
+      hashkey: true,
     },
     title: {
       type: String,
@@ -16,7 +16,7 @@ const presetSchema = new dynamoose.Schema(
     user: {
       type: String,
       default: null,
-      index: true
+      rangeKey: true
     },
     defaultPreset: {
       type: Boolean,
@@ -32,7 +32,30 @@ const presetSchema = new dynamoose.Schema(
       default: null,
     },
   },
-  { timestamps: true },
+   {
+      "timestamps": {
+        "createdAt": {
+            "createdAt": {
+                "type": {
+                    "value": Date,
+                    "settings": {
+                        "storage": "iso"
+                    }
+                }
+            }
+        },
+        "updatedAt": {
+                "updatedAt": {
+                    "type": {
+                        "value": Date,
+                        "settings": {
+                            "storage": "iso"
+                        }
+                    }
+                }
+            }
+      }
+    }
 );
 
 const Preset = dynamoose.model('Preset', presetSchema);
@@ -45,5 +68,24 @@ Preset.find = async function (query) {
    throw new Error(`Failed to find preset: ${error.message}`);
   }
 };
+
+Preset.findOneAndUpdate = async function findOneAndUpdate(presetId, user, setter, options = {}) {
+    try {
+      // Perform the update operation
+      const result = await Preset.update(
+        { presetId, user },  // Query parameters
+        setter,              // Update data
+        {
+          returnValues: options.new ? 'ALL_NEW' : 'NONE',  // Return the updated item if 'new' option is true
+          upsert: options.upsert || false,  // Upsert behavior
+        }
+      );
+
+      return result;
+    } catch (error) {
+      console.error('Error updating preset:', error);
+      throw new Error(`Failed to update preset: ${error.message}`);
+    }
+}
 
 module.exports = Preset;

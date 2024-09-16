@@ -2,6 +2,10 @@ const Conversation = require('./schema/convoSchema');
 const { getMessages, deleteMessages } = require('./Message');
 const logger = require('~/config/winston');
 
+const isEmpty = (obj) => {
+  return Object.keys(obj).length === 0 && obj.constructor === Object;
+};
+
 /**
  * Searches for a conversation by conversationId and returns a lean document with only conversationId and user.
  * @param {string} conversationId - The conversation's ID.
@@ -43,17 +47,30 @@ module.exports = {
    */
   saveConvo: async (req, { conversationId, newConversationId, ...convo }, metadata) => {
     try {
+        console.log("saveConvo1")
       if (metadata && metadata?.context) {
         logger.debug(`[saveConvo] ${metadata.context}`);
       }
-      const messages = await getMessages({ conversationId }, 'messageId');
-
+      console.log("saveConvo2")
+      const messages = await getMessages({ conversationId }, ['messageId', 'endpoint']);
+         console.log("saveConvo3")
       console.log("saveConvo.conversationId", conversationId)
       console.log("saveConvo.messages", messages)
-      const update = { ...convo, messages, user: req.user.id };
+
+      const filteredMessages = messages.map(message => message.messageId);
+
+console.log("saveConvo.filteredMessages", filteredMessages)
+
+
+      const update = { ...convo, messages: filteredMessages, user: req.user.id };
       if (newConversationId) {
         update.conversationId = newConversationId;
       }
+
+      if (messages && messages.length) {
+        update.endpoint = messages[0].endpoint;
+      }
+console.log("saveConvoxxxxxxxxxxx")
 
       const conversation = await Conversation.findOneAndUpdate(
         { conversationId, user: req.user.id },
@@ -63,6 +80,8 @@ module.exports = {
           upsert: true,
         },
       );
+
+      console.log("saveConvoyyyyyyyyyyyx")
       console.log("saveConvo.conversation", conversation)
       return conversation;
     } catch (error) {
@@ -93,27 +112,31 @@ module.exports = {
   },
   getConvosByPage: async (user, pageNumber = 1, pageSize = 25, isArchived = false, tags) => {
     const query = { user };
-    if (isArchived) {
+    /*if (isArchived) {
       query.isArchived = true;
     } else {
       query.$or = [{ isArchived: false }, { isArchived: { $exists: false } }];
-    }
+    }*/
     if (Array.isArray(tags) && tags.length > 0) {
       query.tags = { $in: tags };
     }
     try {
+      logger.debug("getConvosByPage 1")
       const totalConvos = (await Conversation.countDocuments(query)) || 1;
+      logger.debug("getConvosByPage 2")
       const totalPages = Math.ceil(totalConvos / pageSize);
-      console.log("getConvosByPage", query)
-      const convos = await Conversation.find(query)
-        .sort({ updatedAt: -1 })
-        .skip((pageNumber - 1) * pageSize)
-        .limit(pageSize)
-        .lean();
+      logger.debug("getConvosByPage 3")
+
+      const convos = await Conversation.query(query)   // Query based on the partition key
+        .sort('descending')   // Sort descending based on the range key
+        .limit(pageSize)      // Limit the number of results
+        .exec();
+
+      console.log("getConvosByPage 4")
       return { conversations: convos, pages: totalPages, pageNumber, pageSize };
     } catch (error) {
       logger.error('[getConvosByPage] Error getting conversations', error);
-      return { message: 'Error getting conversations' };
+      return { message: 'Error getting conversations alalalal' };
     }
   },
   getConvosQueried: async (user, convoIds, pageNumber = 1, pageSize = 25) => {
@@ -197,10 +220,41 @@ module.exports = {
    * logger.error(result); // { n: 5, ok: 1, deletedCount: 5, messages: { n: 10, ok: 1, deletedCount: 10 } }
    */
   deleteConvos: async (user, filter) => {
-    let toRemove = await Conversation.find({ ...filter, user }).select('conversationId');
-    const ids = toRemove.map((instance) => instance.conversationId);
-    let deleteCount = await Conversation.deleteMany({ ...filter, user });
-    deleteCount.messages = await deleteMessages({ conversationId: { $in: ids } });
-    return deleteCount;
+    console.log("1", filter)
+    let deleteCountMessages = 0;
+    let queryBuilder = await Conversation.scan('user')
+                     .eq(user)
+                     .using('userGlobalIndex');
+
+    if (!filter || isEmpty(filter)) {
+        console.log("2")
+        const items = queryBuilder.exec();
+        const deletePromises = items.map(item =>
+          item.delete({ conversationId: item.id })
+        );
+
+        await Promise.all(deletePromises);
+        deleteCountMessages = await deleteMessages({ user });
+    } else {
+    console.log("3")
+        queryBuilder = queryBuilder
+        .where ('conversationId')
+        .eq(filter.conversationId)
+
+        const conv = await queryBuilder.exec();
+
+        if (conv && conv[0]) {
+             console.log("3", conv[0])
+             await conv[0].delete({ conversationId: filter.conversationId })
+        }
+
+        console.log("4")
+        deleteCountMessages = await deleteMessages({ conversationIds: [filter.conversationId] });
+    }
+
+
+
+    console.log("5")
+    return deleteCountMessages;
   },
 };

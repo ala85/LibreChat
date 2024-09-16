@@ -43,7 +43,7 @@ const createMeiliMongooseModel = function ({ index, attributesToIndex }) {
     static async syncWithMeili() {
       try {
         let moreDocuments = true;
-        const mongoDocuments = await this.find().lean();
+        const mongoDocuments = await this.find();
         const format = (doc) => _.pick(doc, attributesToIndex);
 
         // Prepare for comparison
@@ -157,7 +157,7 @@ const createMeiliMongooseModel = function ({ index, attributesToIndex }) {
             },
             { _id: 1, __v: 1 },
           ),
-        ).lean();
+        );
 
         // Add additional data from mongodb into Meili search hits
         const populatedHits = data.hits.map(function (hit) {
@@ -304,7 +304,7 @@ module.exports = function mongoMeili(schema, options) {
     try {
       if (Object.prototype.hasOwnProperty.call(schema.obj, 'messages')) {
         const convoIndex = client.index('convos');
-        const deletedConvos = await dynamoose.model('Conversation').find(this._conditions).lean();
+        const deletedConvos = await dynamoose.model('Conversation').find(this._conditions);
         let promises = [];
         for (const convo of deletedConvos) {
           promises.push(convoIndex.deleteDocument(convo.conversationId));
@@ -314,7 +314,7 @@ module.exports = function mongoMeili(schema, options) {
 
       if (Object.prototype.hasOwnProperty.call(schema.obj, 'messageId')) {
         const messageIndex = client.index('messages');
-        const deletedMessages = await dynamoose.model('Message').find(this._conditions).lean();
+        const deletedMessages = await dynamoose.model('Message').find(this._conditions);
         let promises = [];
         for (const message of deletedMessages) {
           promises.push(messageIndex.deleteDocument(message.messageId));

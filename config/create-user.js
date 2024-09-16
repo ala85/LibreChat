@@ -92,7 +92,7 @@ or the user will need to attempt logging in to have a verification link sent to 
     }
   }
 
-  const userExists = await User.findOne({ $or: [{ email }, { username }] });
+  const userExists = await User.findOne({ email, username });
   if (userExists) {
     console.red('Error: A user with that email or username already exists!');
     silentExit(1);
@@ -112,7 +112,7 @@ or the user will need to attempt logging in to have a verification link sent to 
     silentExit(1);
   }
 
-  const userCreated = await User.findOne({ $or: [{ email }, { username }] });
+  const userCreated = await User.findOne({ email, username });
   if (userCreated) {
     console.green('User created successfully!');
     console.green(`Email verified: ${userCreated.emailVerified}`);

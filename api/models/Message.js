@@ -227,7 +227,7 @@ async function updateMessage(req, message, metadata) {
  */
 async function deleteMessagesSince(req, { messageId, conversationId }) {
   try {
-    const message = await Message.findOne({ messageId, user: req.user.id }).lean();
+    const message = await Message.findOne({ messageId, user: req.user.id });
 
     if (message) {
       const query = Message.find({ conversationId, user: req.user.id });
@@ -253,10 +253,32 @@ async function deleteMessagesSince(req, { messageId, conversationId }) {
  */
 const getMessages = async (filter, select) => {
   try {
-    const result = await Message.query(filter).exec();
+    /*console.log("yyyyyyyyygetMessages.filter", filter)
 
-    console.log("select", select)
-    console.log("type select", typeof select)
+    const { conversationId } = filter;
+    let result = null;
+
+    console.log("yyyyyyyyygetMessages.conversationId", conversationId)
+
+    if (conversationId) {
+        result = await Message.query(filter)
+                            .using("conversationIdGlobalIndex")
+                            .attributes(select)
+                            .exec();
+        console.log("yyyyyyyyygetMessages.result", result)
+        return result;
+    }
+
+    //console.log("getMessages.select", select)
+    result = await Message.query(filter).exec();
+
+
+
+    //console.log("getMessages.result", result)
+    */
+
+    let result = await Message.query(filter).exec();
+
 
     if (!(select instanceof Array)) {
         select = [select]
@@ -274,7 +296,10 @@ const getMessages = async (filter, select) => {
       }).sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     }
 
-    return result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    const res =  result.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
+    console.log("getMessages reeeeeeeeeees", res)
+    return res;
   } catch (err) {
     logger.error('Error getting messages:', err);
     throw err;

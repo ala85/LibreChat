@@ -18,7 +18,7 @@ const sendEvent = (res, event) => {
   if (typeof event.data === 'string' && event.data.length === 0) {
     return;
   }
-  res.write(`event: message\ndata: ${JSON.stringify(event)}\n\n`);
+  res.write(`\n\nevent: message\ndata: ${JSON.stringify(event)}\n\n`);
 };
 
 class ModelEndHandler {

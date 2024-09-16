@@ -57,7 +57,7 @@ configSchema.methods.incrementCount = function () {
 
 // Static methods
 configSchema.statics.findByTag = async function (tag) {
-  return await this.findOne({ tag }).lean();
+  return await this.findOne({ tag });
 };
 
 configSchema.statics.updateByTag = async function (tag, update) {
@@ -69,7 +69,7 @@ const Config = dynamoose.models.Config || dynamoose.model('Config', configSchema
 module.exports = {
   getConfigs: async (filter) => {
     try {
-      return await Config.find(filter).lean();
+      return await Config.find(filter);
     } catch (error) {
       logger.error('Error getting configs', error);
       return { config: 'Error getting configs' };

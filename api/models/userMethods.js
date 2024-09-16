@@ -44,7 +44,7 @@ const updateUser = async function (userId, updateData) {
   return await User.findByIdAndUpdate(userId, updateOperation, {
     new: true,
     runValidators: true,
-  }).lean();
+  });
 };
 
 /**
@@ -69,7 +69,7 @@ const createUser = async (data, disableTTL = true, returnUser = false) => {
   if (returnUser) {
     console.log("createUser", user)
     console.log("returnUser", returnUser)
-    return user.toObject();
+    return user;
   }
   return user._id;
 };

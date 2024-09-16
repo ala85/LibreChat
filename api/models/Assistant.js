@@ -15,7 +15,7 @@ const Assistant = dynamoose.model('assistant', assistantSchema);
  */
 const updateAssistantDoc = async (searchParams, updateData) => {
   const options = { new: true, upsert: true };
-  return await Assistant.findOneAndUpdate(searchParams, updateData, options).lean();
+  return await Assistant.findOneAndUpdate(searchParams, updateData, options);
 };
 
 /**
@@ -26,7 +26,7 @@ const updateAssistantDoc = async (searchParams, updateData) => {
  * @param {string} searchParams.user - The user ID of the assistant's author.
  * @returns {Promise<AssistantDocument|null>} The assistant document as a plain object, or null if not found.
  */
-const getAssistant = async (searchParams) => await Assistant.findOne(searchParams).lean();
+const getAssistant = async (searchParams) => await Assistant.findOne(searchParams);
 
 /**
  * Retrieves all assistants that match the given search parameters.

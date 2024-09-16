@@ -87,6 +87,7 @@ const AgentController = async (req, res, next, initializeClient, addTitle) => {
       },
     };
 
+    logger.debug("ffffffffffffffffff", text)
     let response = await client.sendMessage(text, messageOptions);
     response.endpoint = endpointOption.endpoint;
 

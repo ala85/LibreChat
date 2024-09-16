@@ -3,7 +3,7 @@ const { logger } = require('~/config');
 
 const getPreset = async (user, presetId) => {
   try {
-    return await Preset.findOne({ user, presetId }).lean();
+    return await Preset.findOne({ user, presetId });
   } catch (error) {
     logger.error('[getPreset] Error getting single preset', error);
     return { message: 'Error getting single preset' };
@@ -19,7 +19,8 @@ module.exports = {
 
       console.log("query", query)
 
-      const presets = await Preset.find(query);
+      const presets = await Preset.scan(query).exec();
+
       const defaultValue = 10000;
 
       if (!presets || !presets.length) {
@@ -76,6 +77,7 @@ module.exports = {
       }
 
       setter.$set = update;
+      console.log("setter", setter)
       return await Preset.findOneAndUpdate({ presetId, user }, setter, { new: true, upsert: true });
     } catch (error) {
       logger.error('[savePreset] Error saving preset', error);

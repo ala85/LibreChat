@@ -37,7 +37,7 @@ const getProjectByName = async function (projectName, fieldsToSelect = null) {
     console.log(`Fetching project with name: ${projectName}`)
     const projects = await Project.query({name: projectName}).exec();
     let project = projects[0] || null;
-    console.log("aaaaaaaaaaaaa", project)
+    // console.log("aaaaaaaaaaaaa", project)
     if (!project) {
       if (projectName === GLOBAL_PROJECT_NAME) {
         // Create the project if it does not exist and the name matches GLOBAL_PROJECT_NAME

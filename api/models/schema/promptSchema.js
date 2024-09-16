@@ -101,7 +101,11 @@ PromptGroup.aggregate = async (pipeline) => {
       if (stage.$lookup) {
         // Lookup stage
         const { from, localField, foreignField, as } = stage.$lookup;
-        const lookupTable = await dynamoose.model(from).scan().exec(); // Retrieve all items from the lookup table
+
+        if (from === 'prompts') {
+            singular = 'Prompt';
+        }
+        const lookupTable = await dynamoose.model(singular).scan().exec(); // Retrieve all items from the lookup table
 
         results = results.map(item => {
           const foreignItems = lookupTable.filter(lookupItem => lookupItem[foreignField] === item[localField]);

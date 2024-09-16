@@ -10,7 +10,7 @@ export default async function cleanupUser(user: TUser) {
     const db = await connectDb();
     console.log('🤖:  ✅  Connected to Database');
 
-    const { _id: user } = await User.findOne({ email }).lean();
+    const { _id: user } = await User.findOne({ email });
     console.log('🤖:  ✅  Found user in Database');
 
     // Delete all conversations & associated messages

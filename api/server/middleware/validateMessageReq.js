@@ -12,6 +12,8 @@ const validateMessageReq = async (req, res, next) => {
     conversationId = req.body.message.conversationId;
   }
 
+   console.log("validateMessageReq,user", req.user.id)
+   console.log("validateMessageReq.conversationId", conversationId)
   const conversation = await getConvo(req.user.id, conversationId);
 
   if (!conversation) {

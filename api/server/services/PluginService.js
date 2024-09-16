@@ -24,7 +24,7 @@ const { logger } = require('~/config');
  */
 const getUserPluginAuthValue = async (userId, authField) => {
   try {
-    const pluginAuth = await PluginAuth.findOne({ userId, authField }).lean();
+    const pluginAuth = await PluginAuth.findOne({ userId, authField });
     if (!pluginAuth) {
       throw new Error(`No plugin auth ${authField} found for user ${userId}`);
     }
@@ -65,7 +65,7 @@ const getUserPluginAuthValue = async (userId, authField) => {
 const updateUserPluginAuth = async (userId, authField, pluginKey, value) => {
   try {
     const encryptedValue = await encrypt(value);
-    const pluginAuth = await PluginAuth.findOne({ userId, authField }).lean();
+    const pluginAuth = await PluginAuth.findOne({ userId, authField });
     if (pluginAuth) {
       const pluginAuth = await PluginAuth.updateOne(
         { userId, authField },

@@ -602,6 +602,7 @@ class BaseClient {
       this.getTokenCount
     ) {
       let completionTokens;
+      console.log("inside hhhhhhhhhhhhh")
 
       /**
        * Metadata about input/output costs for the current message. The client
@@ -609,6 +610,8 @@ class BaseClient {
        * use the legacy token estimations.
        * @type {StreamUsage | null} */
       const usage = this.getStreamUsage != null ? this.getStreamUsage() : null;
+      console.log("BaseClient usage: ", usage)
+      console.log("BaseClient outputTokensKey: ", outputTokensKey)
 
       if (usage != null && Number(usage[this.outputTokensKey]) > 0) {
         responseMessage.tokenCount = usage[this.outputTokensKey];
@@ -618,7 +621,7 @@ class BaseClient {
         responseMessage.tokenCount = this.getTokenCountForResponse(responseMessage);
         completionTokens = this.getTokenCount(completion);
       }
-
+      console.log("calling recordTokenUsage", { promptTokens, completionTokens, usage })
       await this.recordTokenUsage({ promptTokens, completionTokens, usage });
     }
 

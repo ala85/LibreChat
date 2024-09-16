@@ -3,7 +3,7 @@ const dynamoose = require('dynamoose');
 const balanceSchema = new dynamoose.Schema({
   user: {
     type: String,
-    index: true,
+    hashKey: true,
     required: true,
   },
   // 1000 tokenCredits = 1 mill ($0.001 USD)

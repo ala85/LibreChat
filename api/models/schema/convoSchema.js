@@ -8,7 +8,7 @@ const convoSchema = new dynamoose.Schema(
       type: String,
       unique: true,
       required: true,
-      index: true,
+      hashkey: true,
       meiliIndex: true,
       default: uuidv4
     },
@@ -21,10 +21,9 @@ const convoSchema = new dynamoose.Schema(
       type: String,
       index: true,
     },
-    //messages: [{ type: dynamoose.Schema.Types.ObjectId, ref: 'Message' }],
     messages: {
-      type: dynamoose.type.ANY,       // Declare as an array
-      schema: dynamoose.type.ANY,  // Store message IDs as strings
+      type: Array,       // Declare as an array
+      schema: [String],  // Store message IDs as strings
     },
     // google only
     //examples: { type: [{ type: dynamoose.Schema.Types.Mixed }], default: undefined },
@@ -59,7 +58,39 @@ const convoSchema = new dynamoose.Schema(
       meiliIndex: true,
     },
   },
-  { timestamps: true },
+  {
+    "timestamps": {
+      "createdAt": {
+          "createdAt": {
+              "type": {
+                  "value": Date,
+                  "settings": {
+                      "storage": "iso"
+                  }
+              }
+          }
+      },
+      "updatedAt": {
+              "updatedAt": {
+                  "type": {
+                      "value": Date,
+                      "settings": {
+                          "storage": "iso"
+                      }
+                  }
+              }
+          }
+    },
+    "indexes": [
+        {
+          // GSI for querying by userId and conversationId
+          name: 'UserConversationIndex', // GSI name
+          hashKey: 'conversationId',              // Partition key for GSI
+          rangeKey: 'user',      // Sort key for GSI
+          type: 'global'                  // Define as a global index
+        }
+      ]
+  },
 );
 
 
@@ -87,6 +118,7 @@ Conversation.findOneAndUpdate = async function (searchCriteria, updateData, opti
   try {
     let result = await Conversation.query(searchCriteria).exec();
     console.log("result", result)
+    console.log("hhhhhhhhhhhhhhhhh")
     if (result.length === 0) {
       if (upsert) {
         result = await new Conversation(updateData).save();
@@ -106,7 +138,7 @@ Conversation.findOneAndUpdate = async function (searchCriteria, updateData, opti
 };
 
 
-Conversation.countDocuments = async function (query) {
+Conversation.countDocuments = async function (query = {}) {
    console.log("sssssssssss", query)
   try {
     const count = await Conversation.query(query).count().exec();
@@ -115,5 +147,6 @@ Conversation.countDocuments = async function (query) {
     throw new Error(`Failed to count conversations: ${error.message}`);
   }
 };
+
 
 module.exports = Conversation;

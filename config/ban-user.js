@@ -44,7 +44,7 @@ const connect = require('./connect');
     silentExit(1);
   }
 
-  const user = await User.findOne({ email }).lean();
+  const user = await User.findOne({ email });
   if (!user) {
     console.red('Error: No user with that email was found!');
     silentExit(1);

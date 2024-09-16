@@ -65,7 +65,7 @@ const connect = require('./connect');
   }
 
   // Validate the user
-  const user = await User.findOne({ email }).lean();
+  const user = await User.findOne({ email });
   if (!user) {
     console.red('Error: No user with that email was found!');
     silentExit(1);
@@ -89,7 +89,7 @@ const connect = require('./connect');
     console.error(error);
     silentExit(1);
   }
-
+  console.log("balance", result)
   // Check the result
   if (!result?.balance) {
     console.red('Error: Something went wrong while updating the balance!');

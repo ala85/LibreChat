@@ -21,7 +21,7 @@ const { logger } = require('~/config');
  */
 const spendTokens = async (txData, tokenUsage) => {
   const { promptTokens, completionTokens } = tokenUsage;
-  logger.debug(
+  logger.info(
     `[spendTokens] conversationId: ${txData.conversationId}${
       txData?.context ? ` | Context: ${txData?.context}` : ''
     } | Token usage: `,
@@ -32,14 +32,18 @@ const spendTokens = async (txData, tokenUsage) => {
   );
   let prompt, completion;
   try {
+    console.log("spendTokens.promptTokens", promptTokens)
+    console.log("spendTokens.txData", txData)
+    console.log("spendTokens.rawAmount", -Math.max(promptTokens, 0))
     if (promptTokens !== undefined) {
+      console.log("inside")
       prompt = await Transaction.create({
         ...txData,
         tokenType: 'prompt',
         rawAmount: -Math.max(promptTokens, 0),
       });
     }
-
+    console.log("spendTokens.prompt", prompt)
     if (completionTokens !== undefined) {
       completion = await Transaction.create({
         ...txData,
@@ -47,7 +51,7 @@ const spendTokens = async (txData, tokenUsage) => {
         rawAmount: -Math.max(completionTokens, 0),
       });
     }
-
+    console.log("spendTokens.completion", completion)
     if (prompt || completion) {
       logger.debug('[spendTokens] Transaction data record against balance:', {
         user: txData.user,

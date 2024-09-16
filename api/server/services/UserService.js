@@ -124,7 +124,7 @@ const updateUserKey = async ({ userId, name, value, expiresAt = null }) => {
   return await Key.findOneAndUpdate({ userId, name }, updateObject, {
     upsert: true,
     new: true,
-  }).lean();
+  });
 };
 
 /**
@@ -144,7 +144,7 @@ const deleteUserKey = async ({ userId, name, all = false }) => {
     return await Key.deleteMany({ userId });
   }
 
-  await Key.findOneAndDelete({ userId, name }).lean();
+  await Key.findOneAndDelete({ userId, name });
 };
 
 /**

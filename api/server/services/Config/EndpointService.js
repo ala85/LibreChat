@@ -25,7 +25,7 @@ const userProvidedOpenAI = useAzurePlugins
 
 module.exports = {
   config: {
-    openAIApiKey,
+    /*openAIApiKey,
     azureOpenAIApiKey,
     useAzurePlugins,
     userProvidedOpenAI,
@@ -44,7 +44,7 @@ module.exports = {
       azureAssistantsApiKey,
       AZURE_ASSISTANTS_BASE_URL,
       EModelEndpoint.azureAssistants,
-    ),
+    ),*/
     [EModelEndpoint.bedrock]: generateConfig(
       process.env.BEDROCK_AWS_SECRET_ACCESS_KEY ?? process.env.BEDROCK_AWS_DEFAULT_REGION,
     ),

@@ -19,6 +19,10 @@ const publicSharedLinksEnabled =
   (process.env.ALLOW_SHARED_LINKS_PUBLIC === undefined ||
     isEnabled(process.env.ALLOW_SHARED_LINKS_PUBLIC));
 
+const isEmpty = (obj) => {
+  return Object.keys(obj).length === 0 && obj.constructor === Object;
+};
+
 router.get('/', async function (req, res) {
   const cache = getLogStores(CacheKeys.CONFIG_STORE);
   const cachedStartupConfig = await cache.get(CacheKeys.STARTUP_CONFIG);
@@ -34,7 +38,10 @@ router.get('/', async function (req, res) {
 
   const instanceProject = await getProjectByName(Constants.GLOBAL_PROJECT_NAME, '_id');
 
-  console.log("route.getXXXXXX", instanceProject)
+  console.log("Loaded project", instanceProject)
+
+  instanceProjectId = instanceProject && !isEmpty(instanceProject) ? instanceProject._id.toString() : null;
+
   const ldap = getLdapConfig();
 
 
@@ -76,7 +83,7 @@ router.get('/', async function (req, res) {
       sharedLinksEnabled,
       publicSharedLinksEnabled,
       analyticsGtmId: process.env.ANALYTICS_GTM_ID,
-      instanceProjectId: instanceProject ? instanceProject._id.toString() : null,
+      instanceProjectId: instanceProjectId,
     };
 
     if (ldap) {

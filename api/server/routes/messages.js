@@ -12,7 +12,9 @@ router.use(requireJwtAuth);
 router.get('/:conversationId', validateMessageReq, async (req, res) => {
   try {
     const { conversationId } = req.params;
-    const messages = await getMessages({ conversationId }, '-_id -__v -user');
+    //const messages = await getMessages({ conversationId }, '-_id -__v -user');
+    const messages = await getMessages({ conversationId });
+    console.log("Messageskkkkkkkkkkk", messages)
     res.status(200).json(messages);
   } catch (error) {
     logger.error('Error fetching messages:', error);
@@ -42,7 +44,8 @@ router.post('/:conversationId', validateMessageReq, async (req, res) => {
 router.get('/:conversationId/:messageId', validateMessageReq, async (req, res) => {
   try {
     const { conversationId, messageId } = req.params;
-    const message = await getMessages({ conversationId, messageId }, '-_id -__v -user');
+    //const message = await getMessages({ conversationId, messageId }, '-_id -__v -user');
+    const message = await getMessages({ conversationId, messageId });
     if (!message) {
       return res.status(404).json({ error: 'Message not found' });
     }
